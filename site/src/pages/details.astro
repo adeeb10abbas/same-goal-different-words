@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.svelte';
+import Intro from '../components/Intro.svelte';
+import Finding from '../components/Finding.svelte';
+import Setup from '../components/Setup.svelte';
+import Results from '../components/Results.svelte';
+import Failures from '../components/Failures.svelte';
+import Language from '../components/Language.svelte';
+import Forecasts from '../components/Forecasts.svelte';
+import Takeaways from '../components/Takeaways.astro';
+import vqaData from '../../public/data/vqa.json';
+import episodes from '../../public/data/episodes.json';
+import { epId, type Episode } from '../lib/media';
+import { GOALS, MODELS, FORM_ORDER } from '../lib/study';
+import { SITE } from '../lib/site';
+import { fitHero } from '../lib/hero-fit';
+import type { StripData } from '../components/OutcomeStrips.svelte';
+import { placementBits } from '../lib/results';
+import { failuresProps } from '../lib/failures';
+import { encodeForecasts } from '../lib/forecasts';
+import { buildCodes } from '../lib/setup';
+import { consoleSeed, gridCodes, pairCards, placementCards, type VqaPublic } from '../lib/vqa';
+
+const byId = new Map((episodes as Episode[]).map((e) => [e.id, e]));
+const ep = (id: string) => {
+  const e = byId.get(id);
+  if (!e) throw new Error(`missing episode ${id}`);
+  return e;
+};
+
+// Per goal and wording: one code per run, ordered by model then start (N3 1-8, E3 1-8, F3 1-8).
+const STAGE_CODE: Record<string, string> = {
+  goal_unstable: 'u',
+  lift_no_goal: 'f',
+  contact_no_lift: 'c',
+  no_mover_contact: 'm',
+};
+const strips: Record<string, StripData> = {};
+for (const g of GOALS) {
+  const row = {} as StripData;
+  for (const f of FORM_ORDER) {
+    let codes = '';
+    const t: (number | null)[] = [];
+    for (const m of MODELS)
+      for (let c = 1; c <= 8; c++) {
+        const e = ep(epId(m.id, g.scene.id, c, g.id, f));
+        if (!!e.se !== (e.stage === 'stable') || (e.sf && !e.se)) throw new Error(`inconsistent outcome ${e.id}`);
+        const code = e.se ? (e.sf ? 'K' : 'L') : STAGE_CODE[e.stage];
+        if (!code) throw new Error(`unknown stage ${e.stage} in ${e.id}`);
+        codes += code;
+        t.push(e.tStable);
+      }
+    row[f] = { codes, t };
+  }
+  strips[g.key] = row;
+}
+if (Object.keys(strips).length * 72 !== byId.size) throw new Error('strips do not cover every episode');
+
+const all = episodes as Episode[];
+const bits = placementBits(all);
+const failures = failuresProps(all);
+const forecastCodes = encodeForecasts(all);
+const vqa = vqaData as unknown as VqaPublic;
+const vqaGrid = gridCodes(vqa);
+const setupCodes = buildCodes(ep);
+if (setupCodes.length !== byId.size) throw new Error('setup codes do not cover every episode');
+---
+
+<Base
+  page="details"
+  title={`Full results · ${SITE.title}`}
+  sections={['intro', 'finding', 'setup', 'results', 'failures', 'language', 'forecasts', 'takeaways']}
+>
+  <Hero
+    client:load
+    tf={ep('RWS-E3-S4-C02-R-S')}
+    rf={ep('RWS-E3-S4-C02-R-I')}
+    notes={{
+      S: 'Lifts the mustard at 9\u00a0s and sets it down to the right of the raisin box at 23\u00a0s.',
+      I: 'Pushes the mustard without lifting it. From 25\u00a0s the gripper is on the raisin box instead.',
+    }}
+  />
+  <script is:inline set:html={`(${fitHero})(document.querySelector('[data-hero] > .wrap'));`} />
+  <Intro client:visible={{ rootMargin: '800px' }} rollout={ep('RWS-E3-S4-C02-R-S')} />
+  <Finding client:visible={{ rootMargin: '800px' }} {strips} />
+  <Setup
+    client:visible={{ rootMargin: '800px' }}
+    codes={setupCodes}
+    rollout={ep('RWS-E3-S4-C02-R-S')}
+    examples={['RWS-E3-S4-C02-R-S', 'RWS-F3-S4-C02-R-I', 'RWS-E3-S4-C02-R-I', 'RWS-E3-S4-C02-L-D', 'RWS-E3-S4-C02-L-S'].map(ep)}
+  />
+  <Results client:visible={{ rootMargin: '800px' }} {bits} />
+  <Failures client:visible={{ rootMargin: '800px' }} {...failures} />
+  <Language
+    client:visible={{ rootMargin: '800px' }}
+    codes={vqaGrid.codes}
+    placement={vqaGrid.placement}
+    seed={consoleSeed(vqa)}
+    placementCards={placementCards(vqa)}
+    pairCards={pairCards(vqa)}
+  />
+  <Forecasts client:visible={{ rootMargin: '800px' }} codes={forecastCodes} />
+  <Takeaways />
+</Base>

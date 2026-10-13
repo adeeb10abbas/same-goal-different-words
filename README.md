@@ -9,15 +9,17 @@ Project website for **Same Goal, Different Words: Spatial Instruction Sensitivit
 ![Social card: target-first vs reference-first rollouts](site/public/og.jpg)
 
 Three world-action models get the same goal in three equivalent wordings, from the same physical starts. Naming the
-reference object before the object to move lowers stable placement by 12.2 points across 864 rollouts. The site
-walks through the finding, the paired design, every result in the paper and its appendix, the failure analysis, the
-language-backbone probe and the generated-future forecasts. Every rollout is browsable in the explorer.
+reference object before the object to move lowers stable placement by 12.2 points across 864 rollouts. The home page
+gives the findings as a short visual summary. The full results page (`/details/`) walks through the paired design,
+every result in the paper and its appendix, the failure analysis, the language-backbone probe and the generated-future
+forecasts. Every rollout is browsable in the explorer (`/explore/`).
 
 ## Layout
 
 | Path | Contents |
 | --- | --- |
 | `site/` | Astro + Svelte + D3 static site. |
+| `site/src/pages/` | `index.astro` (summary home page), `details.astro` (full results), `explore.astro` (rollout explorer). |
 | `site/src/data/`, `site/public/data/` | Compact study data built by `pipeline/` (checked against the paper). |
 | `site/qa/` | Layout QA harness: overlap, clipping, contrast and hydration checks across viewports and browsers. |
 | `site/scripts/og.mjs` | Renders the social card `site/public/og.jpg` from the hero rollout pair. |

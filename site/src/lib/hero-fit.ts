@@ -7,7 +7,7 @@
  * and landscape tablets. The layout is decided here rather than by a height media query so that a collapsing mobile URL
  * bar cannot flip it mid-scroll; callers only re-run this on width changes on touch devices.
  *
- * index.astro inlines this function's source to run it before first paint, and Hero.svelte calls it again after
+ * details.astro inlines this function's source to run it before first paint, and Hero.svelte calls it again after
  * hydration, font loading and resizes. It must therefore stay self-contained: no imports, no outer references.
  *
  * `keep` is for refits after first paint that are not caused by the window changing. The first fit measures with

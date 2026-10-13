@@ -15,16 +15,20 @@ import { study } from '../lib/study';
 interface Props {
   title?: string;
   description?: string;
-  page?: 'home' | 'explore';
-  /** Section ids present on the home page, in page order; the nav lists only these. */
+  page?: 'home' | 'details' | 'explore';
+  /** Section ids present on the details page, in page order; the nav lists only these. */
   sections?: string[];
+  /** Extra nav links after the section links, as [href, label]. */
+  extra?: [string, string][];
 }
 
-const { title = `${SITE.title}: ${SITE.subtitle}`, description = SITE.description, page = 'home', sections } = Astro.props;
+const { title = `${SITE.title}: ${SITE.subtitle}`, description = SITE.description, page = 'home', sections, extra = [] } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(`${base}og.jpg`, Astro.site);
-const home = page === 'home' ? '' : base;
+// Section links point into the details page; the citation block is on both the home and details pages.
+const details = page === 'details' ? '' : `${base}details/`;
+const cite = page === 'explore' ? base : '';
 const ALL_LINKS = [
   ['intro', 'Intro'],
   ['finding', 'Finding'],
@@ -65,7 +69,7 @@ const commit = study.source.commit.slice(0, 7);
   </head>
   <body data-page={page}>
     <a class="skip" href="#main">Skip to content</a>
-    <header class="nav" data-nav data-solid={page !== 'home' ? '' : undefined}>
+    <header class="nav" data-nav data-solid={page === 'explore' ? '' : undefined}>
       <div class="nav-in">
         <a class="brand" href={base} aria-label={`${SITE.title} — home`}>
           <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -76,7 +80,8 @@ const commit = study.source.commit.slice(0, 7);
           <span>Same Goal, <i>Different Words</i></span>
         </a>
         <nav aria-label="Sections">
-          {links.map(([id, label]) => <a href={`${home}#${id}`} data-spy={id}>{label}</a>)}
+          {links.map(([id, label]) => <a href={`${details}#${id}`} data-spy={id}>{label}</a>)}
+          {extra.map(([to, label]) => <a href={to}>{label}</a>)}
         </nav>
         <div class="cta">
           <a class="pill" href={`${base}explore/`} aria-current={page === 'explore' ? 'page' : undefined}>
@@ -103,7 +108,7 @@ const commit = study.source.commit.slice(0, 7);
             {SITE.paper && <a href={SITE.paper}>Paper (PDF)</a>}
             <a href={SITE.code}>Code, scenes and evidence</a>
             <a href={`${base}explore/`}>Rollout explorer</a>
-            <a href={`${home}#cite`}>Cite</a>
+            <a href={`${cite}#cite`}>Cite</a>
           </div>
           <div>
             <div class="lbl">Provenance</div>

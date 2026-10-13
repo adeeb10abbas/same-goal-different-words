@@ -8,6 +8,7 @@
   import { SITE } from '../lib/site';
   import { fitHero } from '../lib/hero-fit';
   import Instruction from './Instruction.svelte';
+  import Logos from './Logos.svelte';
   import Lanes from './Lanes.svelte';
   import SyncVideo from './SyncVideo.svelte';
   import Transport from './Transport.svelte';
@@ -39,7 +40,7 @@
   const tick = (tl: Timeline | undefined) => (tl ? Math.min(tl.n - 1, Math.round(play.t * tl.fps)) : 0);
   const done = $derived(play.dur > 0 && play.t >= play.dur - 0.05);
 
-  // Size both frames so they sit fully inside the first screen (see fitHero). index.astro runs the same function before
+  // Size both frames so they sit fully inside the first screen (see fitHero). details.astro runs the same function before
   // first paint; this keeps it right once fonts and instruction line breaks are final and as the window changes.
   let wrapEl: HTMLDivElement;
   $effect(() => {
@@ -91,6 +92,7 @@
           <p class="affs">
             {#each SITE.affiliations as name, i}{i ? ' · ' : ''}<span class="nw"><sup>{i + 1}</sup>{name}</span>{/each}
           </p>
+          <Logos />
         {/if}
       </div>
       <div class="intro">

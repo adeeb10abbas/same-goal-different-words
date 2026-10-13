@@ -1,0 +1,103 @@
+/* Shared scaffolding for the short landing page: one kicker, one headline, one sentence and one visual per finding. */
+.pk-head {
+  max-width: 900px;
+}
+
+.pk-k {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pk-k b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pk-k::after {
+  content: '';
+  width: 36px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.dark .pk-k {
+  color: var(--stage-muted);
+}
+
+.dark .pk-k b {
+  color: #fff;
+}
+
+.pk-h {
+  font-size: clamp(2.1rem, 1.25rem + 3.1vw, 3.9rem);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+  margin-top: 18px;
+}
+
+.pk-h em {
+  font-style: italic;
+}
+
+.pk-p {
+  font-family: var(--serif);
+  font-size: clamp(1.14rem, 1.02rem + 0.45vw, 1.36rem);
+  line-height: 1.5;
+  color: var(--ink-2);
+  max-width: 35em;
+  margin: 20px 0 0;
+}
+
+.dark .pk-p {
+  color: #c9ced6;
+}
+
+.pk-body {
+  margin-top: clamp(36px, 5vw, 64px);
+}
+
+.pk-foot {
+  margin: 28px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 52em;
+}
+
+.dark .pk-foot {
+  color: var(--stage-muted);
+}
+
+.pk-more {
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  padding-bottom: 1px;
+  margin-left: 4px;
+  transition: border-color 0.2s;
+}
+
+.pk-more:hover {
+  border-bottom-color: currentColor;
+}
+
+.dark .pk-more {
+  color: #fff;
+}
+
+.pk-num {
+  font-family: var(--serif);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-variant-numeric: lining-nums tabular-nums;
+}

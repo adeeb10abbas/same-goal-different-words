@@ -10,11 +10,20 @@ export const SITE = {
     'Three world-action models receive the same goal in three equivalent wordings. Saying the target first places it 12 points more often than saying the reference first — and placements are often undone before the episode ends.',
   authors: [
     { name: 'Ali-Adeeb Abbas', aff: [1, 2] },
-    { name: 'Esmaeil Seraj', aff: [2] },
-    { name: 'Behrad Toghi', aff: [2] },
-    { name: 'Taskin Padir', aff: [1, 3] },
+    { name: 'Esmaeil Seraj', aff: [1] },
+    { name: 'Behrad Toghi', aff: [1] },
+    { name: 'Taskin Padir', aff: [2, 3] },
   ] as { name: string; url?: string; aff: number[] }[],
-  affiliations: ['RIVeR Lab, Northeastern University', 'General Motors Robotics', 'Amazon Robotics'],
+  affiliations: ['General Motors Robotics', 'RIVeR Lab, Northeastern University', 'Amazon Robotics'],
+  /**
+   * Affiliation logos in `affiliations` order, drawn as white silhouettes in the heroes. Files in public/logos/ are
+   * from Wikimedia Commons; `ratio` is each file's width / height.
+   */
+  logos: [
+    { src: 'logos/gm.svg', ratio: 229.557 / 61.167 },
+    { src: 'logos/northeastern.svg', ratio: 247 / 78.865 },
+    { src: 'logos/amazon-robotics.svg', ratio: 585 / 182 },
+  ],
   contact: 'abbas.a@northeastern.edu',
   anonymous: false,
   paper: null as string | null,
