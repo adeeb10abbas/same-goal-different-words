@@ -1,0 +1,1458 @@
+{
+ "templates": {
+  "IH": [
+   {
+    "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\nWrist camera (mounted on the robot's gripper; in this image the robot's left is toward the image's right side and farther from the robot is toward the image's bottom):\n"
+   },
+   {
+    "image": "wrist"
+   },
+   {
+    "t": "\nLeft exterior camera (mounted on the robot's left side; in this image the robot's left is toward the image's lower left and farther from the robot is toward the image's upper left):\n"
+   },
+   {
+    "image": "left"
+   },
+   {
+    "t": "\nRight exterior camera (mounted on the robot's right side; in this image the robot's left is toward the image's upper left and farther from the robot is toward the image's upper right):\n"
+   },
+   {
+    "image": "right"
+   },
+   {
+    "t": "\n\nObject vocabulary: {objects}\nRelation vocabulary: left_of, right_of, in_front_of, behind, on_top_supported, stacked_on, unknown\n\nInstruction:\n{instruction}\n\nInterpret the requested outcome, not the current arrangement. Return one JSON object:\n{\"target\": \"...\", \"reference\": \"...\", \"relation\": \"...\"}\nThe target is the object the instruction asks to move. The relation is the target's\nrequested final relation to the reference. Use the provided object and relation vocabulary."
+   }
+  ],
+  "T": [
+   {
+    "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\n\n\n\n\n\n\n\nObject vocabulary: {objects}\nRelation vocabulary: left_of, right_of, in_front_of, behind, on_top_supported, stacked_on, unknown\n\nInstruction:\n{instruction}\n\nInterpret the requested outcome, not the current arrangement. Return one JSON object:\n{\"target\": \"...\", \"reference\": \"...\", \"relation\": \"...\"}\nThe target is the object the instruction asks to move. The relation is the target's\nrequested final relation to the reference. Use the provided object and relation vocabulary."
+   }
+  ],
+  "I": [
+   {
+    "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\n\n"
+   },
+   {
+    "image": "wrist"
+   },
+   {
+    "t": "\n\n"
+   },
+   {
+    "image": "left"
+   },
+   {
+    "t": "\n\n"
+   },
+   {
+    "image": "right"
+   },
+   {
+    "t": "\n\nObject vocabulary: {objects}\nRelation vocabulary: left_of, right_of, in_front_of, behind, on_top_supported, stacked_on, unknown\n\nInstruction:\n{instruction}\n\nInterpret the requested outcome, not the current arrangement. Return one JSON object:\n{\"target\": \"...\", \"reference\": \"...\", \"relation\": \"...\"}\nThe target is the object the instruction asks to move. The relation is the target's\nrequested final relation to the reference. Use the provided object and relation vocabulary."
+   }
+  ],
+  "H": [
+   {
+    "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\nWrist camera (mounted on the robot's gripper; in this image the robot's left is toward the image's right side and farther from the robot is toward the image's bottom):\n\nLeft exterior camera (mounted on the robot's left side; in this image the robot's left is toward the image's lower left and farther from the robot is toward the image's upper left):\n\nRight exterior camera (mounted on the robot's right side; in this image the robot's left is toward the image's upper left and farther from the robot is toward the image's upper right):\n\n\nObject vocabulary: {objects}\nRelation vocabulary: left_of, right_of, in_front_of, behind, on_top_supported, stacked_on, unknown\n\nInstruction:\n{instruction}\n\nInterpret the requested outcome, not the current arrangement. Return one JSON object:\n{\"target\": \"...\", \"reference\": \"...\", \"relation\": \"...\"}\nThe target is the object the instruction asks to move. The relation is the target's\nrequested final relation to the reference. Use the provided object and relation vocabulary."
+   }
+  ]
+ },
+ "c2": {
+  "initial|1": {
+   "segments": [
+    {
+     "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\nWrist camera (mounted on the robot's gripper; in this image the robot's left is toward the image's right side and farther from the robot is toward the image's bottom):\n"
+    },
+    {
+     "image": "wrist"
+    },
+    {
+     "t": "\nLeft exterior camera (mounted on the robot's left side; in this image the robot's left is toward the image's lower left and farther from the robot is toward the image's upper left):\n"
+    },
+    {
+     "image": "left"
+    },
+    {
+     "t": "\nRight exterior camera (mounted on the robot's right side; in this image the robot's left is toward the image's upper left and farther from the robot is toward the image's upper right):\n"
+    },
+    {
+     "image": "right"
+    },
+    {
+     "t": "\n\nInstruction:\n{instruction}\n\nTreat the instruction as a description of a desired spatial relation between the named objects.\nEvaluate only their arrangement in the supplied current camera views. Whether anyone moved an object,\nwhether a robot action occurred, and whether the arrangement was held over time are irrelevant.\n\nWhich statement is supported by the current views?\nA: The current arrangement does not match the spatial relation requested by the instruction.\nB: The current arrangement matches the spatial relation requested by the instruction.\nU: The supplied visual evidence is insufficient to determine whether it matches.\nReturn exactly one code: A, B, or U."
+    }
+   ],
+   "mapping": {
+    "A": "nonmatch",
+    "B": "match",
+    "U": "unknown"
+   }
+  },
+  "initial|0": {
+   "segments": [
+    {
+     "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\nWrist camera (mounted on the robot's gripper; in this image the robot's left is toward the image's right side and farther from the robot is toward the image's bottom):\n"
+    },
+    {
+     "image": "wrist"
+    },
+    {
+     "t": "\nLeft exterior camera (mounted on the robot's left side; in this image the robot's left is toward the image's lower left and farther from the robot is toward the image's upper left):\n"
+    },
+    {
+     "image": "left"
+    },
+    {
+     "t": "\nRight exterior camera (mounted on the robot's right side; in this image the robot's left is toward the image's upper left and farther from the robot is toward the image's upper right):\n"
+    },
+    {
+     "image": "right"
+    },
+    {
+     "t": "\n\nInstruction:\n{instruction}\n\nTreat the instruction as a description of a desired spatial relation between the named objects.\nEvaluate only their arrangement in the supplied current camera views. Whether anyone moved an object,\nwhether a robot action occurred, and whether the arrangement was held over time are irrelevant.\n\nWhich statement is supported by the current views?\nA: The current arrangement matches the spatial relation requested by the instruction.\nB: The current arrangement does not match the spatial relation requested by the instruction.\nU: The supplied visual evidence is insufficient to determine whether it matches.\nReturn exactly one code: A, B, or U."
+    }
+   ],
+   "mapping": {
+    "A": "match",
+    "B": "nonmatch",
+    "U": "unknown"
+   }
+  },
+  "secondary|0": {
+   "segments": [
+    {
+     "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\nWrist camera (mounted on the robot's gripper; it moves with the gripper, so its image orientation is not fixed):\n"
+    },
+    {
+     "image": "wrist"
+    },
+    {
+     "t": "\nLeft exterior camera (mounted on the robot's left side; in this image the robot's left is toward the image's lower left and farther from the robot is toward the image's upper left):\n"
+    },
+    {
+     "image": "left"
+    },
+    {
+     "t": "\nRight exterior camera (mounted on the robot's right side; in this image the robot's left is toward the image's upper left and farther from the robot is toward the image's upper right):\n"
+    },
+    {
+     "image": "right"
+    },
+    {
+     "t": "\n\nInstruction:\n{instruction}\n\nTreat the instruction as a description of a desired spatial relation between the named objects.\nEvaluate only their arrangement in the supplied current camera views. Whether anyone moved an object,\nwhether a robot action occurred, and whether the arrangement was held over time are irrelevant.\n\nWhich statement is supported by the current views?\nA: The current arrangement matches the spatial relation requested by the instruction.\nB: The current arrangement does not match the spatial relation requested by the instruction.\nU: The supplied visual evidence is insufficient to determine whether it matches.\nReturn exactly one code: A, B, or U."
+    }
+   ],
+   "mapping": {
+    "A": "match",
+    "B": "nonmatch",
+    "U": "unknown"
+   }
+  },
+  "secondary|1": {
+   "segments": [
+    {
+     "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\nWrist camera (mounted on the robot's gripper; it moves with the gripper, so its image orientation is not fixed):\n"
+    },
+    {
+     "image": "wrist"
+    },
+    {
+     "t": "\nLeft exterior camera (mounted on the robot's left side; in this image the robot's left is toward the image's lower left and farther from the robot is toward the image's upper left):\n"
+    },
+    {
+     "image": "left"
+    },
+    {
+     "t": "\nRight exterior camera (mounted on the robot's right side; in this image the robot's left is toward the image's upper left and farther from the robot is toward the image's upper right):\n"
+    },
+    {
+     "image": "right"
+    },
+    {
+     "t": "\n\nInstruction:\n{instruction}\n\nTreat the instruction as a description of a desired spatial relation between the named objects.\nEvaluate only their arrangement in the supplied current camera views. Whether anyone moved an object,\nwhether a robot action occurred, and whether the arrangement was held over time are irrelevant.\n\nWhich statement is supported by the current views?\nA: The current arrangement does not match the spatial relation requested by the instruction.\nB: The current arrangement matches the spatial relation requested by the instruction.\nU: The supplied visual evidence is insufficient to determine whether it matches.\nReturn exactly one code: A, B, or U."
+    }
+   ],
+   "mapping": {
+    "A": "nonmatch",
+    "B": "match",
+    "U": "unknown"
+   }
+  },
+  "noImage": {
+   "segments": [
+    {
+     "t": "Task: answer a question about a robot's tabletop workspace.\nCoordinate frame: all spatial terms use the robot's frame of reference. The robot faces the workspace; \"left\" and \"right\" are from the robot's point of view, \"in front of\" means closer to the robot, and \"behind\" means farther from the robot.\n\nCamera views of the current scene, captured at the same moment:\nWrist camera (mounted on the robot's gripper; in this image the robot's left is toward the image's right side and farther from the robot is toward the image's bottom):\n\nLeft exterior camera (mounted on the robot's left side; in this image the robot's left is toward the image's lower left and farther from the robot is toward the image's upper left):\n\nRight exterior camera (mounted on the robot's right side; in this image the robot's left is toward the image's upper left and farther from the robot is toward the image's upper right):\n\n\nInstruction:\n{instruction}\n\nTreat the instruction as a description of a desired spatial relation between the named objects.\nEvaluate only their arrangement in the supplied current camera views. Whether anyone moved an object,\nwhether a robot action occurred, and whether the arrangement was held over time are irrelevant.\n\nWhich statement is supported by the current views?\nA: The current arrangement does not match the spatial relation requested by the instruction.\nB: The current arrangement matches the spatial relation requested by the instruction.\nU: The supplied visual evidence is insufficient to determine whether it matches.\nReturn exactly one code: A, B, or U."
+    }
+   ],
+   "mapping": {
+    "A": "nonmatch",
+    "B": "match",
+    "U": "unknown"
+   }
+  }
+ },
+ "schemas": {
+  "S3": {
+   "type": "object",
+   "properties": {
+    "target": {
+     "type": "string",
+     "enum": [
+      "butter",
+      "raisin_box"
+     ]
+    },
+    "reference": {
+     "type": "string",
+     "enum": [
+      "butter",
+      "raisin_box"
+     ]
+    },
+    "relation": {
+     "type": "string",
+     "enum": [
+      "left_of",
+      "right_of",
+      "in_front_of",
+      "behind",
+      "on_top_supported",
+      "stacked_on",
+      "unknown"
+     ]
+    }
+   },
+   "required": [
+    "target",
+    "reference",
+    "relation"
+   ],
+   "additionalProperties": false
+  },
+  "S4": {
+   "type": "object",
+   "properties": {
+    "target": {
+     "type": "string",
+     "enum": [
+      "mustard_bottle",
+      "raisin_box"
+     ]
+    },
+    "reference": {
+     "type": "string",
+     "enum": [
+      "mustard_bottle",
+      "raisin_box"
+     ]
+    },
+    "relation": {
+     "type": "string",
+     "enum": [
+      "left_of",
+      "right_of",
+      "in_front_of",
+      "behind",
+      "on_top_supported",
+      "stacked_on",
+      "unknown"
+     ]
+    }
+   },
+   "required": [
+    "target",
+    "reference",
+    "relation"
+   ],
+   "additionalProperties": false
+  },
+  "S1": {
+   "type": "object",
+   "properties": {
+    "target": {
+     "type": "string",
+     "enum": [
+      "banana",
+      "bowl",
+      "rubiks_cube"
+     ]
+    },
+    "reference": {
+     "type": "string",
+     "enum": [
+      "banana",
+      "bowl",
+      "rubiks_cube"
+     ]
+    },
+    "relation": {
+     "type": "string",
+     "enum": [
+      "left_of",
+      "right_of",
+      "in_front_of",
+      "behind",
+      "on_top_supported",
+      "stacked_on",
+      "unknown"
+     ]
+    }
+   },
+   "required": [
+    "target",
+    "reference",
+    "relation"
+   ],
+   "additionalProperties": false
+  }
+ },
+ "prompts": {
+  "S3-L-I": {
+   "instruction": "Move the butter box on the table so that the raisin box is to the right of the butter box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "L"
+  },
+  "S3-R-S": {
+   "instruction": "Move the butter box on the table so that the butter box is to the right of the raisin box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "R"
+  },
+  "S1-F-D": {
+   "instruction": "Put the rubiks cube in front of the bowl",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "in_front_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "F"
+  },
+  "S3-R-I": {
+   "instruction": "Move the butter box on the table so that the raisin box is to the left of the butter box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "R"
+  },
+  "S4-R-S": {
+   "instruction": "Move the mustard bottle on the table so that the mustard bottle is to the right of the raisin box.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "R"
+  },
+  "S3-TOP-D": {
+   "instruction": "Pick up the butter box and place it on top of the raisin box",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "on_top_supported",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "TOP"
+  },
+  "S1-F-S": {
+   "instruction": "Place the Rubik's cube so that the Rubik's cube is in front of the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "in_front_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "F"
+  },
+  "S1-B-I": {
+   "instruction": "Place the Rubik's cube so that the bowl is in front of the Rubik's cube.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "behind",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "B"
+  },
+  "S3-R-D": {
+   "instruction": "Place the butter box on the table to the right of the raisin box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "R"
+  },
+  "S1-B-D": {
+   "instruction": "Put the rubiks cube behind the bowl",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "behind",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "B"
+  },
+  "S3-L-S": {
+   "instruction": "Move the butter box on the table so that the butter box is to the left of the raisin box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "L"
+  },
+  "S1-R-I": {
+   "instruction": "Place the Rubik's cube so that the bowl is to the left of the Rubik's cube.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "right_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "R"
+  },
+  "S1-L-D": {
+   "instruction": "Put the rubiks cube to the left of the bowl",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "left_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "L"
+  },
+  "S4-TOP-I": {
+   "instruction": "Place the mustard bottle so that the raisin box is underneath and supporting the mustard bottle.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "on_top_supported",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "TOP"
+  },
+  "S4-TOP-S": {
+   "instruction": "Place the mustard bottle so that the mustard bottle is on top of and supported by the raisin box.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "on_top_supported",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "TOP"
+  },
+  "S4-L-D": {
+   "instruction": "Place the mustard bottle on the table to the left of the raisin box.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "L"
+  },
+  "S4-R-D": {
+   "instruction": "Place the mustard bottle on the table to the right of the raisin box.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "R"
+  },
+  "S4-TOP-D": {
+   "instruction": "Place the mustard on the raisin box. ",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "on_top_supported",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "TOP"
+  },
+  "S4-L-I": {
+   "instruction": "Move the mustard bottle on the table so that the raisin box is to the right of the mustard bottle.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "L"
+  },
+  "S1-B-S": {
+   "instruction": "Place the Rubik's cube so that the Rubik's cube is behind the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "behind",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "B"
+  },
+  "S3-TOP-S": {
+   "instruction": "Place the butter box so that the butter box is on top of and supported by the raisin box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "on_top_supported",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "TOP"
+  },
+  "S4-L-S": {
+   "instruction": "Move the mustard bottle on the table so that the mustard bottle is to the left of the raisin box.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "L"
+  },
+  "S1-L-S": {
+   "instruction": "Place the Rubik's cube so that the Rubik's cube is to the left of the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "left_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "L"
+  },
+  "S1-R-S": {
+   "instruction": "Place the Rubik's cube so that the Rubik's cube is to the right of the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "right_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "R"
+  },
+  "S3-L-D": {
+   "instruction": "Place the butter box on the table to the left of the raisin box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "L"
+  },
+  "S4-R-I": {
+   "instruction": "Move the mustard bottle on the table so that the raisin box is to the left of the mustard bottle.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "R"
+  },
+  "S1-L-I": {
+   "instruction": "Place the Rubik's cube so that the bowl is to the right of the Rubik's cube.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "left_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "L"
+  },
+  "S1-F-I": {
+   "instruction": "Place the Rubik's cube so that the bowl is behind the Rubik's cube.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "in_front_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "F"
+  },
+  "S3-TOP-I": {
+   "instruction": "Place the butter box so that the raisin box is underneath and supporting the butter box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "on_top_supported",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "TOP"
+  },
+  "S1-R-D": {
+   "instruction": "Put the rubiks cube to the right of the bowl",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "right_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "R"
+  }
+ },
+ "placement": {
+  "S4-R-reference_early": {
+   "instruction": "Relative to the raisin box, place the mustard bottle to the right.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "R",
+   "form": "reference_early"
+  },
+  "S1-F-reference_early": {
+   "instruction": "Relative to the bowl, place the Rubik's cube in front.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "in_front_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "F",
+   "form": "reference_early"
+  },
+  "S4-L-reference_late": {
+   "instruction": "Place the mustard bottle to the left, relative to the raisin box.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "L",
+   "form": "reference_late"
+  },
+  "S1-F-reference_late": {
+   "instruction": "Place the Rubik's cube in front, relative to the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "in_front_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "F",
+   "form": "reference_late"
+  },
+  "S1-R-reference_early": {
+   "instruction": "Relative to the bowl, place the Rubik's cube to the right.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "right_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "R",
+   "form": "reference_early"
+  },
+  "S3-R-reference_late": {
+   "instruction": "Place the butter box to the right, relative to the raisin box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "R",
+   "form": "reference_late"
+  },
+  "S3-R-reference_early": {
+   "instruction": "Relative to the raisin box, place the butter box to the right.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "R",
+   "form": "reference_early"
+  },
+  "S3-L-reference_late": {
+   "instruction": "Place the butter box to the left, relative to the raisin box.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "L",
+   "form": "reference_late"
+  },
+  "S4-L-reference_early": {
+   "instruction": "Relative to the raisin box, place the mustard bottle to the left.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "L",
+   "form": "reference_early"
+  },
+  "S1-B-reference_late": {
+   "instruction": "Place the Rubik's cube behind, relative to the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "behind",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "B",
+   "form": "reference_late"
+  },
+  "S4-R-reference_late": {
+   "instruction": "Place the mustard bottle to the right, relative to the raisin box.",
+   "objects": "mustard_bottle, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "right_of",
+    "target": "mustard_bottle"
+   },
+   "scene": "S4",
+   "goal": "R",
+   "form": "reference_late"
+  },
+  "S1-B-reference_early": {
+   "instruction": "Relative to the bowl, place the Rubik's cube behind.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "behind",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "B",
+   "form": "reference_early"
+  },
+  "S1-R-reference_late": {
+   "instruction": "Place the Rubik's cube to the right, relative to the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "right_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "R",
+   "form": "reference_late"
+  },
+  "S3-L-reference_early": {
+   "instruction": "Relative to the raisin box, place the butter box to the left.",
+   "objects": "butter, raisin_box",
+   "gold": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "butter"
+   },
+   "scene": "S3",
+   "goal": "L",
+   "form": "reference_early"
+  },
+  "S1-L-reference_late": {
+   "instruction": "Place the Rubik's cube to the left, relative to the bowl.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "left_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "L",
+   "form": "reference_late"
+  },
+  "S1-L-reference_early": {
+   "instruction": "Relative to the bowl, place the Rubik's cube to the left.",
+   "objects": "banana, bowl, rubiks_cube",
+   "gold": {
+    "reference": "bowl",
+    "relation": "left_of",
+    "target": "rubiks_cube"
+   },
+   "scene": "S1",
+   "goal": "L",
+   "form": "reference_early"
+  }
+ },
+ "images": {
+  "S3-C06": {
+   "sha": {
+    "wrist": "6d7a74167f9dc2f3e18a7487a71251a61a07b8d79b5f7e03f0040ab10fe5dff8",
+    "left": "dd09c7aa3a89bd287fcc3635aa034406c73d42d8cac03ddc55301a22c573e68b",
+    "right": "a16280e0cdd1977a3eb128b7f48e58d949a60326cf6a909b7a0caca615f3adc9"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C04": {
+   "sha": {
+    "wrist": "8395cde36fde328f1a5a70dd7e19841691a3a5c511c2ce32806b84dc897268f7",
+    "left": "34fdce121fa68de1f539b4e6f66c8deaef8be41f376841eb187e86acbbe48398",
+    "right": "469afb71c0c38f10153b8a556d574a6043cb3fc6c05202768b90eec0c58433f8"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C02": {
+   "sha": {
+    "wrist": "f5c35f73145bdea34649546bc2be31b384db2a99bf13b89bce9d963607abbc3f",
+    "left": "10f385f7d07ae27014a443a36c1cf99a06442bdd15b59bed9b38cf4c33324804",
+    "right": "28c7e150bb2183f3c57771537512f0bf03af0ef7c72312df2872192078bc7c14"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C07": {
+   "sha": {
+    "wrist": "005ea0a2c6986e3319c94900031d5e291ac6f5a27de554b1bf28a6794198145b",
+    "left": "2f89dcf76b56fc8060f85dbaf95ffcdfdbe049ebe08710364b50fef0c9c7518f",
+    "right": "3c54638b436e7c67ca2c1b647b8d86ffb002271e388b21a1d516e9a3639584a2"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S3-C07": {
+   "sha": {
+    "wrist": "ef87bc4f9ec540660a7f70c61ca428db47dff5b26205a41ab539981637e02b70",
+    "left": "401bdfcb5ebe4b45942bf3052d983e77a25e3cdc6c2118197b71b9a3abcce84a",
+    "right": "c4e3f10ab9ada0b4c67f83f9545e1928456ef63a2bd730302ff8ddc2c4f7f1ec"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C08": {
+   "sha": {
+    "wrist": "dc6e785b7228332f21b3c8d3363124b74832dec622244edd8ab8e50cfe99636e",
+    "left": "9c64a3940aee316be381db8395e022c9b0ac49136fd5d1df0805c0d0048c20aa",
+    "right": "864c87661a622b16556b65719dbde431636ec93f5b6f37f9ba01c8999487ca8d"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C02": {
+   "sha": {
+    "wrist": "402b3cfd1342794b7fd3008bb4b91667b10138a7f7266d5d4550eb6eafd4faf1",
+    "left": "c66009600f069372488d49887301cd2fdeeac20c777e0d314024068c9d437f28",
+    "right": "e8663b522a3b3e0dbc0215e145d572425e040b0be26d22e9054ac631c3e896f7"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C01": {
+   "sha": {
+    "wrist": "6087a43eba01425d95b8ea621f8dcb1e59ca347bc78ecd7e14b6f67bbce04cd3",
+    "left": "3c203a61c3c631dfb36f9b00f3388be3900a556aed40af2e3ee498f0d3368162",
+    "right": "fb649e7440d62d9e54284e5a5d6df01169385d0ee91108ecdcc42f438a3741e4"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S3-C01": {
+   "sha": {
+    "wrist": "6d5b5f54ed96ef4e403576c93ac735f2a7f5f6d396c77594d60a22ad97d4f02c",
+    "left": "9d7d8a6c4ce2944e626d29863c96d01a5ce99c8a8c6c9f1c637c6b7722f85975",
+    "right": "2e2351a0253f746a313b767a8c2c7ebe76b8b2859c9a57abd6096b3befa10612"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C06": {
+   "sha": {
+    "wrist": "a6a9f84b1c73d661eb77e442f980cbc32cf6987e1a13062fff5b70c21a9e721a",
+    "left": "405e39262102e3661ee5e2753fb75ad730bb83f05ac3fae02948d18d47bad3f1",
+    "right": "425dfce52d00351f94adf13be62672fc8c890f5e3275132825ae4b92a0cb76a5"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S3-C02": {
+   "sha": {
+    "wrist": "56154f16ec1d6d7beba2264df0be594a4837392a87ba1d241162af43aba14a36",
+    "left": "b62c6a9100ab91640a59b7220a870b6a525aa64126fa34fd30720c1a6ccd5ed8",
+    "right": "c8252de189a0623655a102d8ed68a7b8b3f46a6ea3d61675d267ff287f195109"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S3-C04": {
+   "sha": {
+    "wrist": "1faf67f31f91e1fa56c4725a83a027f4df00ec92d9547955a274d315b7c40313",
+    "left": "6dea4e2ec5e38e632f4b1af69d6ef27e757a68774a8ec601416cc799baba7081",
+    "right": "55357f954c008cc347c9fd71c3f7c53cb2234ff9cc7dca0234cdbea1ea637471"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S3-C05": {
+   "sha": {
+    "wrist": "aac8c4fcb5ae56a9a03ee9b41c6e3d02164423f4f54b07f18ca01ec676338bf9",
+    "left": "6f8cf4b3b347e4253ddf9778bd3028df4e235f4e94b06be9e34c8f68c67041ef",
+    "right": "9e3a71e95ae656bc2456cf9e56521b4d335c3493fd507ea1fc60063a08a1f543"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C03": {
+   "sha": {
+    "wrist": "b5b91201090c2c17571dd17d78925bbd0f9af2264a2f422e2ac100080a1ca932",
+    "left": "25dc14ff2c602a9f25b5fd93d4e7a8d8c66c8694f1253621299424c8f8a2bbdb",
+    "right": "886a545446d2be04ced2de905a23f3a6c0d24148d24a153de5bc3c50e608614d"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C01": {
+   "sha": {
+    "wrist": "a0c4363e0de43f0560114d15e9b7f64560479e455f7d4cd51fe9ad194c6d1fe3",
+    "left": "32e4abd54560109923b06228d9418989d878b7c8c9b8a73e8bd5a7d5b5476405",
+    "right": "b8d436ff6cf9fea386cfbe1bbdb94712d5b8b9392b2ffc27e5892376a8bfc95c"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C04": {
+   "sha": {
+    "wrist": "75a6d5280714dea33f41c221e42ff7b4506ec361818ae3bb665ae79774b299e4",
+    "left": "d797c7f782ed9ef7f8cf50049b0ca3c9373c3acbb41a21949c7d62c68de8a96f",
+    "right": "94b88d77ea647f9dbfae5683f5fe683f92d332de028dde48bee4f2215aa84f41"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C08": {
+   "sha": {
+    "wrist": "7a0a9cf8a7b641e4ca058ae92061e2e538b109eb7b22f19ef02461e004247a9d",
+    "left": "9285839cb7d034c6fb6dee1902a5e4e06e1261a1946634b2078eb15a181a0665",
+    "right": "544121712e1953dae0279d803134a9788eea50a2397fc000bdb172ee3b18d2b1"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S1-C05": {
+   "sha": {
+    "wrist": "1b8c0d1cc8e6133ff4d5c813dd570269ffc021eec73a912913c9482c0a76014a",
+    "left": "a9db671241b4bed0c52706146e7b1622eb3c3799af247aa6434163e578f22920",
+    "right": "189f984a6fb76507b931b3baf7345a5fe1ad04646f4eab95939d3273a87f1336"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S3-C08": {
+   "sha": {
+    "wrist": "b748351eea9fdd07a89e5324ed92930f0550e68c4292275574368893bf0147a6",
+    "left": "a1ac40c8c2d719ccf904f214ade2a0f7c05c52c96c36a2932fe0e0828856e10c",
+    "right": "82f7a0b7fa912b246f30e618b4d085386d1bf4cb186d4396f3abe5d79f2b411b"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S3-C03": {
+   "sha": {
+    "wrist": "4295427313a5101c60abd73cfe70b4ffc6fc86e6aace5ad263aa56e1bfda32cb",
+    "left": "25aacb11acfafad2008ba826ade8bbd098bb23a2a64ad3b6a8f6cd8ba3be2f84",
+    "right": "2c03e51667187cc9ecc26a8eaf72a9a42844bf6dca496f3500a82cf9eeee1bc9"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C05": {
+   "sha": {
+    "wrist": "f0715a29bf62093fe392005dc9bd6b2d0ce93790c795aa476d10f4479885ca39",
+    "left": "d69300127ce0004c6cf362da9946137433cdb77626295bf60c13986ffc5a5f51",
+    "right": "66c8055dbe25e3c9285474b6b591bf52aa4d8c1f20ae25a1e09e20e1e135218e"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C03": {
+   "sha": {
+    "wrist": "ee8abbde686b3f5b315d1cb7d87fd3e1db409ef5a49a45f87880aeee397e7d32",
+    "left": "306e4efe9d43edab8fb6a02bc5b575b54202162177d122546359914c147f2067",
+    "right": "c12b82568f8f08c7f5fa12549946525c9ae8004e494bbaac773a106cfdd2523d"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C06": {
+   "sha": {
+    "wrist": "d73fa8f9b3529cf3e483dad90bda02a980875cc73f4aa74e1278cd674b799d0e",
+    "left": "e7874186a99fc11a01e6e7015b8a1a831b8fbc3d477b9ea5db9f898e58121019",
+    "right": "4aa0121b6868b209c120df0072726d80ba51fe12812b3662e5eafa64bfef0818"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  },
+  "S4-C07": {
+   "sha": {
+    "wrist": "8dc9a70c22799420649d39ce3aafcf4acbf4fa51caca7ab6cc83d23d2a7685ed",
+    "left": "4c79a0ec0a2aa71f84b5716d250f68885df4f5f396484de079ee335d23a89914",
+    "right": "53e48fd0d5c17ba1178c8144c5aa7fa03247665a3e246ea23a91de5bea04a6b5"
+   },
+   "size": {
+    "wrist": [
+     1280,
+     720
+    ],
+    "left": [
+     1280,
+     720
+    ],
+    "right": [
+     1280,
+     720
+    ]
+   }
+  }
+ },
+ "checked": {
+  "b2": 684,
+  "c2": 1440
+ },
+ "responseKeys": [
+  "adapter_commit",
+  "attempt_id",
+  "bank",
+  "checkpoint_id",
+  "checkpoint_manifest_sha256",
+  "condition",
+  "effective_decoding",
+  "error",
+  "finish_reason",
+  "grammar_sha256",
+  "input_payload_sha256",
+  "kind",
+  "latency_s",
+  "option_mapping",
+  "option_order",
+  "output_constraint_sha256",
+  "output_token_ids",
+  "output_tokens",
+  "parsed_response",
+  "phase",
+  "processor_id_and_revision",
+  "prompt_tokens",
+  "query_id",
+  "raw_response",
+  "raw_response_with_special_tokens",
+  "release_content_sha256",
+  "rendered_prompt_sha256",
+  "retry_slot",
+  "status",
+  "structured_backend",
+  "timestamp_utc",
+  "truncated"
+ ],
+ "responseSample": {
+  "adapter_commit": "b63a93fbe10315e97d71ef268445b63d112c2ed0",
+  "attempt_id": "E3-policy.B2.IH.S3-C06-initial.S3-L-I.a1",
+  "bank": "initial",
+  "checkpoint_id": "E3-policy",
+  "checkpoint_manifest_sha256": "eb8cff147b120cd0ac870df051aa249910713c34f64a8075401f7984e9192923",
+  "condition": "IH",
+  "effective_decoding": {
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   },
+   "greedy": true,
+   "max_tokens": 256,
+   "n": 1,
+   "seed": 6106,
+   "structured_outputs": {
+    "backend": "xgrammar",
+    "disable_any_whitespace": true
+   },
+   "temperature": 0.0
+  },
+  "error": null,
+  "finish_reason": "stop",
+  "grammar_sha256": "de95407679da96fd65718e6897a75431dbba1e1776f756d29acf5e13a94aa42d",
+  "input_payload_sha256": "b46110798a47e0e0c5d8391d057e1c8397980ac5f945939f6ddcc0765149a5ad",
+  "kind": "B2",
+  "latency_s": 21.304041624069214,
+  "option_mapping": null,
+  "option_order": null,
+  "output_constraint_sha256": "91b2d92da9b5df7c3ac0117a50202016e2e8dc55afae5c53d0625d0dc062da9e",
+  "output_token_ids": [
+   19227,
+   17679,
+   2811,
+   1429,
+   2209,
+   1397,
+   1897,
+   1429,
+   42611,
+   2811,
+   1429,
+   25405,
+   1259,
+   38037,
+   1897,
+   1429,
+   34415,
+   2811,
+   1429,
+   3967,
+   14753,
+   46005,
+   11
+  ],
+  "output_tokens": 23,
+  "parsed_response": {
+   "answer": {
+    "reference": "raisin_box",
+    "relation": "left_of",
+    "target": "butter"
+   },
+   "reason": null,
+   "valid": true
+  },
+  "phase": "evaluation",
+  "processor_id_and_revision": "nvidia/Cosmos3-Edge-Policy-DROID@a7c7288f9b6ac1684e993007b0f9703dd26e58ef",
+  "prompt_tokens": 2990,
+  "query_id": "B2.IH.S3-C06-initial.S3-L-I",
+  "raw_response": "{\"target\": \"butter\", \"reference\": \"raisin_box\", \"relation\": \"left_of\"}",
+  "raw_response_with_special_tokens": "{\"target\": \"butter\", \"reference\": \"raisin_box\", \"relation\": \"left_of\"}<|im_end|>",
+  "release_content_sha256": "2a3d5d69aca622519dbf67fd8a7931741bdad1c3483197013ad3ea662f8cf4f6",
+  "rendered_prompt_sha256": "ffeadec3fe121d04830ca6d693b3a38a8e8c63287e32c8401a024f39fd0ec828",
+  "retry_slot": null,
+  "status": "delivered",
+  "structured_backend": "xgrammar",
+  "timestamp_utc": "2026-10-07T01:43:23.026636Z",
+  "truncated": false
+ }
+}

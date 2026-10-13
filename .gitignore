@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+node_modules/
+site/dist/
+site/.astro/
+site/public/media/
+media/
+*.tar
+.DS_Store
+site/qa/report/

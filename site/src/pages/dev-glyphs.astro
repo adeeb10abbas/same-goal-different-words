@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import GoalGlyph from '../components/GoalGlyph.svelte';
+import { GOALS } from '../lib/study';
+---
+<Base>
+  <div class="dg" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:90px 20px 20px">
+    {GOALS.map((g) => (
+      <div class="dg-cell" data-goal={g.key}><div class="mono" style="font-size:12px;margin-bottom:4px">{g.key} · {g.label}</div><GoalGlyph client:load goal={g} /></div>
+    ))}
+  </div>
+</Base>

@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.svelte';
+import Finding from '../components/Finding.svelte';
+import episodes from '../../public/data/episodes.json';
+import { epId, type Episode } from '../lib/media';
+import { GOALS, MODELS, FORM_ORDER } from '../lib/study';
+import { fitHero } from '../lib/hero-fit';
+import type { StripData } from '../components/OutcomeStrips.svelte';
+
+const byId = new Map((episodes as Episode[]).map((e) => [e.id, e]));
+const ep = (id: string) => {
+  const e = byId.get(id);
+  if (!e) throw new Error(`missing episode ${id}`);
+  return e;
+};
+
+// Per goal and wording: one code per run, ordered by model then start (N3 1-8, E3 1-8, F3 1-8).
+const STAGE_CODE: Record<string, string> = {
+  goal_unstable: 'u',
+  lift_no_goal: 'f',
+  contact_no_lift: 'c',
+  no_mover_contact: 'm',
+};
+const strips: Record<string, StripData> = {};
+for (const g of GOALS) {
+  const row = {} as StripData;
+  for (const f of FORM_ORDER) {
+    let codes = '';
+    const t: (number | null)[] = [];
+    for (const m of MODELS)
+      for (let c = 1; c <= 8; c++) {
+        const e = ep(epId(m.id, g.scene.id, c, g.id, f));
+        if (!!e.se !== (e.stage === 'stable') || (e.sf && !e.se)) throw new Error(`inconsistent outcome ${e.id}`);
+        const code = e.se ? (e.sf ? 'K' : 'L') : STAGE_CODE[e.stage];
+        if (!code) throw new Error(`unknown stage ${e.stage} in ${e.id}`);
+        codes += code;
+        t.push(e.tStable);
+      }
+    row[f] = { codes, t };
+  }
+  strips[g.key] = row;
+}
+if (Object.keys(strips).length * 72 !== byId.size) throw new Error('strips do not cover every episode');
+---
+
+<Base sections={['finding']}>
+  <Hero
+    client:load
+    tf={ep('RWS-E3-S4-C02-R-S')}
+    rf={ep('RWS-E3-S4-C02-R-I')}
+    notes={{
+      S: 'Lifts the mustard at 9\u00a0s and sets it down to the right of the raisin box at 23\u00a0s.',
+      I: 'Pushes the mustard without lifting it. From 25\u00a0s the gripper is on the raisin box instead.',
+    }}
+  />
+  <script is:inline set:html={`(${fitHero})(document.querySelector('[data-hero] > .wrap'));`} />
+  <Finding client:visible={{ rootMargin: '800px' }} {strips} />
+</Base>

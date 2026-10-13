@@ -1,0 +1,170 @@
+{
+ "S3-C02-secondary-50": {
+  "sha": {
+   "wrist": "72ed33f1af5cd4a1d3102e5d9a9e25786aaca590c06a28b14dcfc0b1f223afc1",
+   "left": "addc454b51d640b8b0c77c7790e48046ef2b8d5610fe41b260d06e4898dd85db",
+   "right": "6f7e6b6227fcdc78c8c9b992d4719814a407f7d64aadbd2351ede4e5c24bc6a0"
+  },
+  "size": {
+   "wrist": [
+    640,
+    360
+   ],
+   "left": [
+    320,
+    180
+   ],
+   "right": [
+    320,
+    180
+   ]
+  },
+  "episode": "RWS-N3-S3-C02-L-D",
+  "observed_s": 20.0,
+  "requested_s": 20.0
+ },
+ "S1-C04-secondary-50": {
+  "sha": {
+   "wrist": "682fb0b5ae06e51b2a5d675fd655170c4b3ed60c7f6c11c69c54fd410f254d6e",
+   "left": "49a896bbe5beb4fc04a0023c6e2d6861c48c89f37f38c92f30f2fdba47a13f5a",
+   "right": "a2fa60e6a788bc992cee6b60e5426b05d6462c34f4b33173213b6b0dbee4f4e8"
+  },
+  "size": {
+   "wrist": [
+    640,
+    360
+   ],
+   "left": [
+    320,
+    180
+   ],
+   "right": [
+    320,
+    180
+   ]
+  },
+  "episode": "RWS-N3-S1-C04-B-S",
+  "observed_s": 15.0,
+  "requested_s": 15.0
+ },
+ "S4-C06-secondary-100": {
+  "sha": {
+   "wrist": "5dca95684cc63362f6d35b2421688b1bd2a7210208e463bbf12f7a113daf3966",
+   "left": "b5d3eafbd9eb778018718e39700b97ea14064e76334f2d7a39b7f01899c88067",
+   "right": "9f9d41acb8406335376adc694035f313548c0c540fe8c5434005224e4dd9c540"
+  },
+  "size": {
+   "wrist": [
+    640,
+    360
+   ],
+   "left": [
+    320,
+    180
+   ],
+   "right": [
+    320,
+    180
+   ]
+  },
+  "episode": "RWS-N3-S4-C06-R-S",
+  "observed_s": 40.0,
+  "requested_s": 40.0
+ },
+ "S1-C01-secondary-50": {
+  "sha": {
+   "wrist": "708b20df85e2d4455a84a4877d3253d38f196480c54294bb9118429324b3580e",
+   "left": "6cac99b6850bd05a4e3420b12960e1e6f73dadde1eca40883e2aaef0da0a40e2",
+   "right": "876250ce7e59ceef7ac069739eff8b7ec100da506c9c6b796ea275087785e88c"
+  },
+  "size": {
+   "wrist": [
+    640,
+    360
+   ],
+   "left": [
+    320,
+    180
+   ],
+   "right": [
+    320,
+    180
+   ]
+  },
+  "episode": "RWS-N3-S1-C01-L-D",
+  "observed_s": 15.0,
+  "requested_s": 15.0
+ },
+ "S3-C07-secondary-50": {
+  "sha": {
+   "wrist": "0ae5368e304810e271b4e960e14cc869503aedfd4bdd098b5082f1420f2c4e83",
+   "left": "c81be875497ede8087d5d1e41037291fdd5686a35d6ea5a7884e7021aef0fed8",
+   "right": "aacfd3f4033c171d954938391fa0d549e6010dca8368070a17984e35a7581230"
+  },
+  "size": {
+   "wrist": [
+    640,
+    360
+   ],
+   "left": [
+    320,
+    180
+   ],
+   "right": [
+    320,
+    180
+   ]
+  },
+  "episode": "RWS-F3-S3-C07-TOP-D",
+  "observed_s": 20.0,
+  "requested_s": 20.0
+ },
+ "S4-C05-secondary-50": {
+  "sha": {
+   "wrist": "3ec13ba96410e5b3860badc4df4bccdba62e09f5181a33cdbebe3d2798c0fac9",
+   "left": "ff3ab8cbb2366f28130bc10b28ca961eb9b5b0df7fea9f73c9f1a65e4be07d84",
+   "right": "aa1c33346a09af08a8426e9a4159aaa1ac44732423197091ec369e80c4166d36"
+  },
+  "size": {
+   "wrist": [
+    640,
+    360
+   ],
+   "left": [
+    320,
+    180
+   ],
+   "right": [
+    320,
+    180
+   ]
+  },
+  "episode": "RWS-F3-S4-C05-L-I",
+  "observed_s": 20.0,
+  "requested_s": 20.0
+ },
+ "S3-C07-secondary-100": {
+  "sha": {
+   "wrist": "1d73ab41534ea16086f764fdd947137e544ac2bdaeee53e77c3d9e6d1477f72f",
+   "left": "ef5e11644f4c0986378944b3cdf0d578f6ee4efb3c22e2789cbc486a13bb73f7",
+   "right": "080846b5b378c231d07b5d804951db29ccd8c7747f0889dbfcda9a6268c01ed7"
+  },
+  "size": {
+   "wrist": [
+    640,
+    360
+   ],
+   "left": [
+    320,
+    180
+   ],
+   "right": [
+    320,
+    180
+   ]
+  },
+  "episode": "RWS-F3-S3-C07-TOP-D",
+  "observed_s": 40.0,
+  "requested_s": 40.0
+ }
+}

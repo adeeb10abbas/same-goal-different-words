@@ -1,0 +1,368 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/newsreader/opsz-italic.css';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+// Preload the faces used above the fold so text does not reflow when they arrive.
+import fontSans from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import fontSerif from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
+import fontSerifItalic from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-italic.woff2?url';
+import fontMono from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
+import { SITE } from '../lib/site';
+import { study } from '../lib/study';
+
+interface Props {
+  title?: string;
+  description?: string;
+  page?: 'home' | 'explore';
+  /** Section ids present on the home page, in page order; the nav lists only these. */
+  sections?: string[];
+}
+
+const { title = `${SITE.title}: ${SITE.subtitle}`, description = SITE.description, page = 'home', sections } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(`${base}og.jpg`, Astro.site);
+const home = page === 'home' ? '' : base;
+const ALL_LINKS = [
+  ['finding', 'Finding'],
+  ['setup', 'Setup'],
+  ['results', 'Results'],
+  ['rollouts', 'Rollouts'],
+  ['failures', 'Failures'],
+  ['forecasts', 'Forecasts'],
+  ['language', 'Language'],
+];
+const links = sections ? ALL_LINKS.filter(([id]) => sections.includes(id)) : ALL_LINKS;
+const commit = study.source.commit.slice(0, 7);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    {[fontSans, fontSerif, fontSerifItalic, fontMono].map((f) => <link rel="preload" as="font" type="font/woff2" href={f} crossorigin />)}
+    <meta name="theme-color" content="#0d0f13" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+  </head>
+  <body data-page={page}>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="nav" data-nav data-solid={page !== 'home' ? '' : undefined}>
+      <div class="nav-in">
+        <a class="brand" href={base} aria-label={`${SITE.title} — home`}>
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="12" y="25" width="16" height="16" rx="3.5" fill="var(--mover-2)"></rect>
+            <rect x="36" y="21" width="16" height="24" rx="3.5" fill="var(--ref-2)"></rect>
+            <path d="M14 51h36" stroke="var(--kept-2)" stroke-width="3.5" stroke-linecap="round"></path>
+          </svg>
+          <span>Same Goal, <i>Different Words</i></span>
+        </a>
+        <nav aria-label="Sections">
+          {links.map(([id, label]) => <a href={`${home}#${id}`} data-spy={id}>{label}</a>)}
+        </nav>
+        <div class="cta">
+          <a class="pill" href={`${base}explore/`} aria-current={page === 'explore' ? 'page' : undefined}>
+            Explore 864 rollouts <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-in">
+        <div>
+          <div class="foot-title">{SITE.title}</div>
+          <div class="foot-sub">{SITE.subtitleParts[0]} <span class="nw">{SITE.subtitleParts[1]}</span></div>
+          <div class="foot-venue">{SITE.venue}: <i>{SITE.workshop}</i></div>
+        </div>
+        <div class="foot-cols">
+          <div>
+            <div class="lbl">Material</div>
+            {SITE.paper && <a href={SITE.paper}>Paper (PDF)</a>}
+            <a href={SITE.code}>Code, scenes and evidence</a>
+            <a href={`${base}explore/`}>Rollout explorer</a>
+            <a href={`${home}#cite`}>Cite</a>
+          </div>
+          <div>
+            <div class="lbl">Provenance</div>
+            <p>
+              Every number on this site is computed from the released analysis outputs at
+              commit <a class="mono" href={`${SITE.code}/tree/${study.source.commit}`}>{commit}</a> and checked against the submitted
+              paper ({study.checks.toLocaleString('en-US')} assertions). Videos are unedited simulator recordings; generated
+              frames are always labelled as predictions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const nav = document.querySelector<HTMLElement>('[data-nav]')!;
+      const hero = document.querySelector<HTMLElement>('[data-hero]');
+      if (hero) {
+        const onScroll = () => {
+          nav.toggleAttribute('data-solid', window.scrollY > hero.offsetHeight - 64);
+          nav.toggleAttribute('data-scrolled', window.scrollY > 8);
+        };
+        addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+      }
+
+      const spy = new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-spy]')].map((a) => [a.dataset.spy!, a]));
+      const sections = [...spy.keys()].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+      if (sections.length) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (!e.isIntersecting) continue;
+              spy.forEach((a, id) => a.toggleAttribute('aria-current', id === e.target.id));
+            }
+          },
+          { rootMargin: '-45% 0px -50% 0px' },
+        );
+        sections.forEach((s) => io.observe(s));
+      }
+
+      const reveal = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              reveal.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => reveal.observe(el));
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: -9999px;
+    top: 8px;
+    z-index: 100;
+    background: var(--ink);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+  }
+
+  .skip:focus {
+    left: 8px;
+  }
+
+  .nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 40;
+    height: 60px;
+    color: #eef0f3;
+    transition: background 0.35s, color 0.35s, box-shadow 0.35s, backdrop-filter 0.35s;
+  }
+
+  /* Over the dark hero: transparent at rest, dark glass once the page moves so text never runs under the links. */
+  .nav[data-scrolled]:not([data-solid]) {
+    background: rgb(13 15 19 / 74%);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 7%);
+  }
+
+  .nav[data-solid] {
+    background: rgb(250 249 246 / 82%);
+    color: var(--ink);
+    backdrop-filter: saturate(1.6) blur(14px);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 7%);
+  }
+
+  .nav-in {
+    height: 100%;
+    width: min(1320px, 100% - 40px);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .brand svg {
+    width: 26px;
+    height: 26px;
+    flex: none;
+  }
+
+  .nav[data-solid] .brand rect:first-child {
+    fill: var(--mover);
+  }
+
+  .nav[data-solid] .brand rect:last-of-type {
+    fill: var(--ref);
+  }
+
+  .nav[data-solid] .brand path {
+    stroke: var(--kept);
+  }
+
+  nav {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  nav a {
+    font-size: 0.84rem;
+    text-decoration: none;
+    padding: 6px 11px;
+    border-radius: 999px;
+    opacity: 0.72;
+    transition: opacity 0.2s, background 0.2s;
+  }
+
+  nav a:hover {
+    opacity: 1;
+  }
+
+  nav a[aria-current] {
+    opacity: 1;
+    background: color-mix(in srgb, currentColor 10%, transparent);
+  }
+
+  .pill {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 0.84rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #fff;
+    color: #0d0f13;
+    white-space: nowrap;
+    transition: transform 0.2s var(--ease);
+  }
+
+  .pill:hover {
+    transform: translateY(-1px);
+  }
+
+  .nav[data-solid] .pill {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  @media (max-width: 1060px) {
+    nav {
+      display: none;
+    }
+
+    .cta {
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .brand span {
+      display: none;
+    }
+  }
+
+  .foot {
+    background: var(--stage);
+    color: var(--stage-ink);
+    padding: 64px 0 72px;
+    font-size: 0.9rem;
+  }
+
+  .foot-in {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 48px;
+  }
+
+  .foot-title {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    text-wrap: balance;
+  }
+
+  .foot-sub {
+    color: var(--stage-muted);
+    margin-top: 2px;
+  }
+
+  .foot-venue {
+    color: var(--stage-muted);
+    margin-top: 18px;
+    font-size: 0.84rem;
+  }
+
+  .foot-cols {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 32px;
+  }
+
+  .foot-cols a {
+    display: block;
+    color: var(--stage-ink);
+    margin: 6px 0;
+  }
+
+  .foot-cols p {
+    color: var(--stage-muted);
+    margin-top: 6px;
+  }
+
+  .foot-cols p a {
+    display: inline;
+  }
+
+  .foot .lbl {
+    color: var(--stage-muted);
+  }
+
+  @media (max-width: 860px) {
+    .foot-in,
+    .foot-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
