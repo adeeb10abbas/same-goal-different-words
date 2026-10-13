@@ -48,6 +48,16 @@ export const study = raw as unknown as {
   cells: Record<string, [number, number, number]>;
   forecast: any;
   vqa: any;
+  /** Appendix B: policy settings (rows are [setting, Nano, Edge, FLUX]) and the scorer's constants. */
+  settings: {
+    rows: [string, string, string, string][];
+    seed: number;
+    actionsPerRequest: number;
+    hz: number;
+    notes: string[];
+    scoring: { coneDeg: number; footprintCm: number; speedCmS: number; holdS: number; referenceMovedCm: number };
+    stats: { bootstrapDraws: number; signFlipDraws: number; starts: number; holmFamily: string[] };
+  };
   source: { paperRepo: string; commit: string };
   checks: number;
 };

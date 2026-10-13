@@ -118,7 +118,23 @@ SETTINGS = {
         "The exact full-policy revision for FLUX was not recorded; its text encoder was verified separately.",
     ],
     # Placement criteria (Appendix B.1)
-    "scoring": {"coneDeg": 45, "footprintCm": 1, "speedCmS": 2, "holdS": 1},
+    "scoring": {"coneDeg": 45, "footprintCm": 1, "speedCmS": 2, "holdS": 1, "referenceMovedCm": 2},
+    # Statistical comparison (Appendix B.1): bootstrap of the eight starts within each scene; sign-flip test over the
+    # 32 physical-start means for the original family (TF-RF and DIR-TF, Holm-adjusted). Everything else is descriptive.
+    "stats": {"bootstrapDraws": 10000, "signFlipDraws": 100000, "starts": 32, "holmFamily": ["TF_RF", "DIR_TF"]},
+}
+
+# Appendix E values reported in the submitted paper that are not recomputable from the public artifacts.
+FORECAST_REPORTED = {
+    "allFieldsAgree": 5.9,  # % of the 864 forecasts on which the two annotators agreed on every field
+    "startForecasts": 862,  # additional episode-start forecasts, all with kappa below startKappaMax
+    "startKappaMax": 0.115,
+    "controls": {"missingIndicators": 0.000011, "noMotion": 0.000009},  # change in Brier error (positive favours video)
+    "permutation": {"seeds": 100, "mean": -0.00053, "p025": -0.00177, "p975": 0.00049},  # not a confidence interval
+    "selection": {"gripperCm": 10, "fallbacks": 2, "actions": 32, "hz": 15, "frames": 8},
+    "events": {"contactS": 0.2, "displacementCm": 2, "supportedS": 0.2},
+    "classifier": {"C": 1, "folds": 8},
+    "annotators": ["Qwen3-VL-235B-A22B-Instruct-FP8", "GLM-4.5V-FP8"],
 }
 
 
@@ -213,6 +229,8 @@ def main():
     ap.add_argument("--draws", type=int, default=10000)
     args = ap.parse_args()
     root, check = args.paper_repo, Check()
+    check.eq("bootstrap draws as reported", args.draws, SETTINGS["stats"]["bootstrapDraws"])
+    check.eq("sign-flip draws as reported", sign_flip.__defaults__[0], SETTINGS["stats"]["signFlipDraws"])
 
     rows = [r for r in load_jsonl(root / ART / "analysis/conf_features.jsonl")
             if r["status"] == "valid" and r["phase"] == "confirmation"]
@@ -394,6 +412,7 @@ def main():
     check.eq("errors when target named moving", forecast["roleEvents"]["mover"], [19, 540])
     forecast["agreement"] = FORECAST_AGREEMENT
     forecast["utility"] = {"rows": FORECAST_UTILITY, "ci": FORECAST_UTILITY_CI}
+    forecast["reported"] = FORECAST_REPORTED
 
     # ---- instruction understanding (VQA)
     with open(args.vqa_items) as fh:
