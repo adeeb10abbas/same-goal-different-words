@@ -29,7 +29,7 @@
 <section class="section alt language" id="language">
   <div class="wrap">
     <header class="intro">
-      <div class="eyebrow">05 · Interpreting the goal</div>
+      <div class="eyebrow">06 · Interpreting the goal</div>
       <h2>Some backbones misread the goal before the robot moves</h2>
       <p class="lede">
         To separate understanding from manipulation, we gave each policy's vision-language backbone the same 30 instructions and asked it to

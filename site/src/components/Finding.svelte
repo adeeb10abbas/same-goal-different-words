@@ -92,7 +92,7 @@
 <section class="section finding" id="finding">
   <div class="wrap">
     <header class="intro">
-      <div class="eyebrow">01 · The finding</div>
+      <div class="eyebrow">02 · The finding</div>
       <h2>Put the reference first, and placements drop</h2>
       <p class="lede">
         Target-first and reference-first start with the same command and ask the robot to move the same object. They differ only after

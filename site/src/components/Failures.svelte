@@ -19,7 +19,7 @@
 <section class="section dark failures" id="failures">
   <div class="wrap">
     <header class="intro">
-      <div class="eyebrow">04 · Failures</div>
+      <div class="eyebrow">05 · Failures</div>
       <h2>When a placement fails, is lost, or is reached the wrong way</h2>
       <p class="lede">
         The scorer checks spatial outcomes only. A placement counts once the target holds the requested relation for {S.holdS}&nbsp;continuous

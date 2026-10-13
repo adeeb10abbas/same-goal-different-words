@@ -26,6 +26,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(`${base}og.jpg`, Astro.site);
 const home = page === 'home' ? '' : base;
 const ALL_LINKS = [
+  ['intro', 'Intro'],
   ['finding', 'Finding'],
   ['setup', 'Setup'],
   ['results', 'Results'],
@@ -286,6 +287,16 @@ const commit = study.source.commit.slice(0, 7);
   .nav[data-solid] .pill {
     background: var(--ink);
     color: #fff;
+  }
+
+  @media (max-width: 1200px) {
+    .nav-in {
+      gap: 18px;
+    }
+
+    nav a {
+      padding-inline: 7px;
+    }
   }
 
   @media (max-width: 1060px) {

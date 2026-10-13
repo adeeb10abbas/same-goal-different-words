@@ -20,7 +20,7 @@
 <section class="section alt setup" id="setup">
   <div class="wrap">
     <header class="intro">
-      <div class="eyebrow">02 · Setup</div>
+      <div class="eyebrow">03 · Setup</div>
       <h2>Same start, same goal, same model. Only the words change.</h2>
       <p class="lede">
         Each model attempts each goal from the same recorded starts, once per wording. The robot and objects are reset before every

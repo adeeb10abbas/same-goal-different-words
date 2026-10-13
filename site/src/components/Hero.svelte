@@ -101,7 +101,7 @@
         </p>
         <div class="ctas">
           {#if SITE.paper}<a class="btn primary" href={SITE.paper}>Paper</a>{/if}
-          <a class="btn primary" href="#finding">The finding <span aria-hidden="true">↓</span></a>
+          <a class="btn primary" href="#intro">Introduction <span aria-hidden="true">↓</span></a>
           <a class="btn" href={SITE.code}>
             <svg viewBox="0 0 16 16" aria-hidden="true"
               ><path

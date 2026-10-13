@@ -42,7 +42,7 @@
 <section class="section results" id="results">
   <div class="wrap">
     <header class="intro">
-      <div class="eyebrow">03 · Results</div>
+      <div class="eyebrow">04 · Results</div>
       <h2>Where the gap holds, and where it flips</h2>
       <p class="lede">
         The <b class="num">{num(head.est)}-point</b> target-first advantage is an average. Each of the {starts.length} physical starts gives its own

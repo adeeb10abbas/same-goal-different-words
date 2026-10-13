@@ -54,7 +54,7 @@
 <section class="section dark forecasts" id="forecasts">
   <div class="wrap">
     <header class="intro">
-      <div class="eyebrow">06 · Forecasts</div>
+      <div class="eyebrow">07 · Forecasts</div>
       <h2>Do the models’ imagined futures warn of their mistakes?</h2>
       <p class="lede">
         World-action models generate robot actions together with predictions of future observations, so each of the three models here also

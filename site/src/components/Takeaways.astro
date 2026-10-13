@@ -21,7 +21,7 @@ if (study.vqa.summary.text.N3[2] !== 10) throw new Error('Takeaways assume Nano 
 const cards = [
   {
     to: 'finding',
-    sec: '01 · The finding',
+    sec: '02 · The finding',
     stat: pts(head.est),
     unit: 'points',
     claim: 'Saying the reference first lowers stable placement',
@@ -29,7 +29,7 @@ const cards = [
   },
   {
     to: 'results',
-    sec: '03 · Results',
+    sec: '04 · Results',
     stat: `${signed(lo.est)} to ${signed(hi.est)}`,
     unit: 'points by goal',
     claim: 'Averages hide reversals',
@@ -37,7 +37,7 @@ const cards = [
   },
   {
     to: 'failures',
-    sec: '04 · Failures',
+    sec: '05 · Failures',
     stat: `${pts(study.rates.anytime)}% → ${pts(study.rates.end)}%`,
     unit: 'any time → end',
     claim: 'Placements do not last, and can come from the wrong object',
@@ -45,7 +45,7 @@ const cards = [
   },
   {
     to: 'language',
-    sec: '05 · Interpreting the goal',
+    sec: '06 · Interpreting the goal',
     stat: `${fluxRF} / 10`,
     unit: 'reference-first read correctly',
     claim: 'The language backbones already misread the goal',
@@ -53,7 +53,7 @@ const cards = [
   },
   {
     to: 'forecasts',
-    sec: '06 · Forecasts',
+    sec: '07 · Forecasts',
     stat: dec(pooled.delta),
     unit: 'Brier change from video',
     claim: 'Generated futures added no measurable warning',
@@ -72,7 +72,7 @@ const checks = [
 <section class="section takeaways" id="takeaways">
   <div class="wrap">
     <header class="intro">
-      <div class="eyebrow">07 · Takeaways</div>
+      <div class="eyebrow">08 · Takeaways</div>
       <h2>Success under one wording is not steerability</h2>
       <p class="lede">
         Every result on this page comes from the same 864 rollouts, the same starts and the same scorer. Together they argue for evaluating
