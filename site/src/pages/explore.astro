@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import Explorer from '../components/Explorer.svelte';
+import episodes from '../../public/data/episodes.json';
+import { study, FORM_ORDER } from '../lib/study';
+import { SITE } from '../lib/site';
+
+// The explorer fetches episodes.json in the browser; this build-time check only guards the totals quoted in the metadata.
+const total: number = study.flow.total;
+if ((episodes as unknown[]).length !== total) throw new Error(`explore: expected ${total} episodes, got ${(episodes as unknown[]).length}`);
+const sets = total / FORM_ORDER.length;
+if (!Number.isInteger(sets)) throw new Error(`explore: ${total} episodes do not split into paired sets`);
+---
+
+<Base
+  page="explore"
+  title={`Explore all ${total} rollouts · ${SITE.title}`}
+  description={`Browse all ${total} simulator rollouts: ${sets} paired sets of one model, one start and one goal under three wordings, with synced camera views, scorer lanes and forecasts.`}
+>
+  <Explorer client:load />
+</Base>

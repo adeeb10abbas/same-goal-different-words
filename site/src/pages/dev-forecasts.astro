@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import Forecasts from '../components/Forecasts.svelte';
+import episodes from '../../public/data/episodes.json';
+import type { Episode } from '../lib/media';
+import { encodeForecasts } from '../lib/forecasts';
+
+// 9 characters per episode: the forecast window, its final VLM labels, the detected error and the outcome.
+const codes = encodeForecasts(episodes as Episode[]);
+---
+
+<Base sections={['forecasts']}>
+  <h1 class="sr-only">Forecasts section preview</h1>
+  <Forecasts client:visible={{ rootMargin: '800px' }} {codes} />
+</Base>

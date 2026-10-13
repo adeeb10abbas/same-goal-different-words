@@ -169,6 +169,20 @@
   --never-2: #4a505b;
   --bad: #c2412d;
 
+  /* Section 05 answer classes: light surfaces, then the brighter shade used on dark panels. */
+  --vq-ok: #2b774a;
+  --vq-rev: #c72d45;
+  --vq-swrev: #7a50c6;
+  --vq-swap: #b07a08;
+  --vq-sup: #85704a;
+  --vq-oth: #737a85;
+  --vq-ok-2: #5fcf8f;
+  --vq-rev-2: #ff6b80;
+  --vq-swrev-2: #b99dff;
+  --vq-swap-2: #f5c24e;
+  --vq-sup-2: #d6bf8e;
+  --vq-oth-2: #a9b0bb;
+
   --serif: 'Newsreader Variable', 'Newsreader Fallback', 'Iowan Old Style', Georgia, serif;
   --sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', 'JetBrains Mono Fallback Consolas', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -608,7 +622,7 @@ p {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--faint);
+  color: var(--muted);
 }
 
 /* Buttons */

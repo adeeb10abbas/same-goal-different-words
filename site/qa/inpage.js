@@ -326,23 +326,37 @@
     const out = [];
     for (const it of items) {
       if (it.gone || !it.hard.length) continue;
-      const full = sum(it.bands.map(area));
-      const vis = sum(it.bands.map((b) => area(clipTo(b, it.hard))));
-      if (full - vis < 4 || vis > 0.97 * full) continue;
-      let worst = it.hard[0];
-      let loss = -1;
-      for (const c of it.hard) {
-        const l = full - sum(it.bands.map((b) => area(inter(b, c.r))));
-        if (l > loss) [loss, worst] = [l, c];
+      // Text scrolled out of a scroll container is still reachable, so hard clips outside the innermost scroller
+      // are measured only against the part of the text inside that scroller's viewport (catching a scroller that
+      // is itself cut off), while hard clips nested inside it are measured against the whole text.
+      const s = it.clips.findLastIndex((c) => !c.hard);
+      const passes = [{ bands: it.bands, hard: it.clips.slice(s + 1).filter((c) => c.hard) }];
+      if (s >= 0)
+        passes.push({
+          bands: it.bands.map((b) => inter(b, it.clips[s].r)).filter(Boolean),
+          hard: it.clips.slice(0, s).filter((c) => c.hard),
+        });
+      for (const { bands, hard } of passes) {
+        if (!hard.length || !bands.length) continue;
+        const full = sum(bands.map(area));
+        const vis = sum(bands.map((b) => area(clipTo(b, hard))));
+        if (full - vis < 4 || vis > 0.97 * full) continue;
+        let worst = hard[0];
+        let loss = -1;
+        for (const c of hard) {
+          const l = full - sum(bands.map((b) => area(inter(b, c.r))));
+          if (l > loss) [loss, worst] = [l, c];
+        }
+        const ell = ellipsisBetween(it.el, worst.el);
+        out.push(
+          issue(ell ? 'text-ellipsis' : 'text-clipped', ell ? 'warn' : 'error', it, {
+            sel2: sel(worst.el),
+            msg: `${Math.round(100 - (100 * vis) / full)}% of the text is cut off by ${sel(worst.el)}`,
+            rects: [...bands, worst.r],
+          }),
+        );
+        break;
       }
-      const ell = ellipsisBetween(it.el, worst.el);
-      out.push(
-        issue(ell ? 'text-ellipsis' : 'text-clipped', ell ? 'warn' : 'error', it, {
-          sel2: sel(worst.el),
-          msg: `${Math.round(100 - (100 * vis) / full)}% of the text is cut off by ${sel(worst.el)}`,
-          rects: [...it.bands, worst.r],
-        }),
-      );
     }
     return out;
   }

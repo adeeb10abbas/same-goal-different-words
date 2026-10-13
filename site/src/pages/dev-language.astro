@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import Language from '../components/Language.svelte';
+import vqaData from '../../public/data/vqa.json';
+import { consoleSeed, gridCodes, pairCards, placementCards, type VqaPublic } from '../lib/vqa';
+
+const vqa = vqaData as unknown as VqaPublic;
+const { codes, placement } = gridCodes(vqa);
+---
+
+<Base sections={['language']}>
+  <Language
+    client:visible={{ rootMargin: '800px' }}
+    {codes}
+    {placement}
+    seed={consoleSeed(vqa)}
+    placementCards={placementCards(vqa)}
+    pairCards={pairCards(vqa)}
+  />
+</Base>

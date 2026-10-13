@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import Setup from '../components/Setup.svelte';
+import episodes from '../../public/data/episodes.json';
+import type { Episode } from '../lib/media';
+import { buildCodes } from '../lib/setup';
+
+const byId = new Map((episodes as Episode[]).map((e) => [e.id, e]));
+const ep = (id: string) => {
+  const e = byId.get(id);
+  if (!e) throw new Error(`missing episode ${id}`);
+  return e;
+};
+
+// One outcome code per episode (model, goal, wording, start); checked against every published total and contrast.
+const codes = buildCodes(ep);
+if (codes.length !== byId.size) throw new Error('setup codes do not cover every episode');
+---
+
+<Base sections={['setup']}>
+  <Setup
+    client:visible={{ rootMargin: '800px' }}
+    {codes}
+    rollout={ep('RWS-E3-S4-C02-R-S')}
+    examples={['RWS-E3-S4-C02-R-S', 'RWS-F3-S4-C02-R-I', 'RWS-E3-S4-C02-R-I', 'RWS-E3-S4-C02-L-D', 'RWS-E3-S4-C02-L-S'].map(ep)}
+  />
+</Base>

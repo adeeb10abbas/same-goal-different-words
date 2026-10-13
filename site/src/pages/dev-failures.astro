@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import Failures from '../components/Failures.svelte';
+import episodes from '../../public/data/episodes.json';
+import type { Episode } from '../lib/media';
+import { failuresProps } from '../lib/failures';
+
+// Five episode records (the two Appendix D pairs and the placed-then-lost example), the ids of that example's selection
+// pool and compact model × wording × goal-type counts. failuresProps() throws if the data stop matching Appendix C.
+const props = failuresProps(episodes as Episode[]);
+---
+
+<Base sections={['failures']}>
+  <Failures client:visible={{ rootMargin: '800px' }} {...props} />
+</Base>

@@ -44,22 +44,23 @@
   const head = tfrf.anytime.All as { est: number; ci: [number, number] };
   const perModel = MODELS.map((m) => ({ m, est: (tfrf.anytime[m.id as ModelId] as { est: number }).est }));
   const disc = tfrf.discordant as { aOnly: number; bOnly: number };
-  const nPairs = Object.keys(strips).length * 24;
-  const allCodes = Object.values(strips)
-    .flatMap((g) => Object.values(g).map((x) => x.codes))
-    .join('');
-  const nLost = [...allCodes].filter((c) => c === 'L').length;
-  const nPlaced = placedIn(allCodes);
-  const vqaText = study.vqa.text as Record<string, { ok: boolean; err: string }>;
-  const flux = (f: string) => Object.entries(vqaText).filter(([k]) => k.startsWith('F3|') && k.endsWith(`-${f}`));
-  const fluxRF = flux('I').sort((a, b) => +b[1].ok - +a[1].ok);
-  const fluxRev = fluxRF.filter(([, v]) => v.err === 'converse_relation').length;
-  const fluxRFok = fluxRF.filter(([, v]) => v.ok).length;
-  const fluxTFerr = flux('S').filter(([, v]) => !v.ok).length;
-  const fluxTF = flux('S').length;
+  const tally = $derived.by(() => {
+    const all = Object.values(strips)
+      .flatMap((g) => Object.values(g).map((x) => x.codes))
+      .join('');
+    const pairs = Object.keys(strips).length * 24;
+    if (pairs !== 288 || disc.aOnly + disc.bOnly > pairs) throw new Error('Finding: unexpected strip totals');
+    return { pairs, lost: [...all].filter((c) => c === 'L').length, placed: placedIn(all) };
+  });
+  const fluxText = study.vqa.errors.F3.T;
+  const total = (c: Partial<Record<string, number>>) => Object.values(c).reduce((a: number, b) => a + (b ?? 0), 0);
+  const fluxRev = fluxText.RF.reversed ?? 0;
+  const fluxRFok = fluxText.RF.correct ?? 0;
+  const fluxRF = Array.from({ length: total(fluxText.RF) }, (_, i) => i < fluxRFok);
+  const fluxTF = total(fluxText.TF);
+  const fluxTFerr = fluxTF - (fluxText.TF.correct ?? 0);
 
-  if (nPairs !== 288 || disc.aOnly + disc.bOnly > nPairs || fluxRev + fluxRFok !== fluxRF.length)
-    throw new Error('Finding: unexpected study totals');
+  if (fluxRev + fluxRFok !== fluxRF.length) throw new Error('Finding: unexpected study totals');
 
   const pts = (x: number) => (100 * x).toFixed(1);
   const pmMax = Math.max(...perModel.map((p) => p.est), 0.2);
@@ -82,7 +83,9 @@
     );
   }
 
-  const waffle = Array.from({ length: nPairs }, (_, i) => (i < disc.aOnly ? 'S' : i < disc.aOnly + disc.bOnly ? 'I' : 'n'));
+  const waffle = $derived(
+    Array.from({ length: tally.pairs }, (_, i) => (i < disc.aOnly ? 'S' : i < disc.aOnly + disc.bOnly ? 'I' : 'n')),
+  );
   const WC = 24;
 </script>
 
@@ -181,10 +184,10 @@
       <article class="card">
         <div class="big"><CountUp value={disc.aOnly} /><span class="vs">vs</span><CountUp value={disc.bOnly} delay={150} /></div>
         <p class="what">
-          Paired runs where only <b class="tf">TF</b> placed versus only <b class="rf">RF</b>. The other {nPairs - disc.aOnly - disc.bOnly} of
-          {nPairs} pairs agreed.
+          Paired runs where only <b class="tf">TF</b> placed versus only <b class="rf">RF</b>. The other {tally.pairs - disc.aOnly - disc.bOnly} of
+          {tally.pairs} pairs agreed.
         </p>
-        <svg class="waffle" viewBox="0 0 {WC * 9} {(nPairs / WC) * 9}" aria-hidden="true">
+        <svg class="waffle" viewBox="0 0 {WC * 9} {(tally.pairs / WC) * 9}" aria-hidden="true">
           {#each waffle as w, i}
             <rect
               class={w}
@@ -201,7 +204,7 @@
       </article>
 
       <article class="card">
-        <div class="big"><CountUp value={nLost} /><span class="of">of {nPlaced}</span></div>
+        <div class="big"><CountUp value={tally.lost} /><span class="of">of {tally.placed}</span></div>
         <p class="what">Stable placements undone before the episode ended. The overall rate halves from any time to the final second.</p>
         <div class="ae">
           <span class="ael">Any time</span>
@@ -234,7 +237,7 @@
           <span class="vqr">{#each Array(fluxTF) as _, i}<i class="ok" style:transition-delay="{i * 40}ms"></i>{/each}</span>
           <span class="vql">RF</span>
           <span class="vqr"
-            >{#each fluxRF as [, v], i}<i class={v.ok ? 'ok' : 'rev'} style:transition-delay="{400 + i * 40}ms">{v.ok ? '' : '⇄'}</i>{/each}</span
+            >{#each fluxRF as ok, i}<i class={ok ? 'ok' : 'rev'} style:transition-delay="{400 + i * 40}ms">{ok ? '' : '⇄'}</i>{/each}</span
           >
         </div>
         <p class="fine">A test of the language model, not a causal explanation of rollouts.</p>

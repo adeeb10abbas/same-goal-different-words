@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import Results from '../components/Results.svelte';
+import episodes from '../../public/data/episodes.json';
+import type { Episode } from '../lib/media';
+import { placementBits } from '../lib/results';
+
+const bits = placementBits(episodes as Episode[]);
+---
+
+<Base title="Results (dev)" sections={['results']}>
+  <Results client:load {bits} countsOpen />
+</Base>

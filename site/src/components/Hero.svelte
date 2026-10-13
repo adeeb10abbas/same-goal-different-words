@@ -4,7 +4,7 @@
   import { loadTimeline, type Timeline } from '../lib/timeline';
   import { liveState } from '../lib/live';
   import { epFile, TOP_ASPECT, type Episode } from '../lib/media';
-  import { goalByKey, outcomeOf, STAGE_LABEL, MODEL_NAME, FORM_NAME, FORM_SHORT, type FormId } from '../lib/study';
+  import { goalByKey, outcomeOf, STAGE_LABEL, MODEL_NAME, FORM_NAME, FORM_SHORT } from '../lib/study';
   import { SITE } from '../lib/site';
   import { fitHero } from '../lib/hero-fit';
   import Instruction from './Instruction.svelte';
@@ -16,8 +16,8 @@
 
   const goal = $derived(goalByKey(`${tf.s}-${tf.g}`));
   const panels = $derived([
-    { f: 'S' as FormId, ep: tf },
-    { f: 'I' as FormId, ep: rf },
+    { f: 'S' as const, ep: tf },
+    { f: 'I' as const, ep: rf },
   ]);
 
   const { clock, state: play, destroy } = createClock(2, 2600);
@@ -84,7 +84,12 @@
         <p class="sub">{SITE.subtitleParts[0]} <span class="nw">{SITE.subtitleParts[1]}</span></p>
         {#if SITE.authors.length}
           <p class="authors">
-            {#each SITE.authors as a, i}{i ? ', ' : ''}{#if a.url}<a href={a.url}>{a.name}</a>{:else}{a.name}{/if}{/each}
+            {#each SITE.authors as a, i}{i ? ', ' : ''}<span class="nw"
+                >{#if a.url}<a href={a.url}>{a.name}</a>{:else}{a.name}{/if}<sup>{a.aff.join(',')}</sup></span
+              >{/each}
+          </p>
+          <p class="affs">
+            {#each SITE.affiliations as name, i}{i ? ' · ' : ''}<span class="nw"><sup>{i + 1}</sup>{name}</span>{/each}
           </p>
         {/if}
       </div>
@@ -253,7 +258,22 @@
   }
 
   .authors {
-    margin: 8px 0 0;
+    margin: 12px 0 0;
+    color: #dfe3e8;
+    font-size: 0.98rem;
+  }
+
+  .affs {
+    margin: 4px 0 0;
+    color: var(--stage-muted);
+    font-size: 0.8rem;
+  }
+
+  .authors sup,
+  .affs sup {
+    font-size: 0.68em;
+    line-height: 0;
+    margin: 0 1px;
     color: var(--stage-muted);
   }
 

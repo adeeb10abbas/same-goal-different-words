@@ -29,10 +29,10 @@ const ALL_LINKS = [
   ['finding', 'Finding'],
   ['setup', 'Setup'],
   ['results', 'Results'],
-  ['rollouts', 'Rollouts'],
   ['failures', 'Failures'],
-  ['forecasts', 'Forecasts'],
   ['language', 'Language'],
+  ['forecasts', 'Forecasts'],
+  ['takeaways', 'Takeaways'],
 ];
 const links = sections ? ALL_LINKS.filter(([id]) => sections.includes(id)) : ALL_LINKS;
 const commit = study.source.commit.slice(0, 7);
@@ -79,7 +79,7 @@ const commit = study.source.commit.slice(0, 7);
         </nav>
         <div class="cta">
           <a class="pill" href={`${base}explore/`} aria-current={page === 'explore' ? 'page' : undefined}>
-            Explore 864 rollouts <span aria-hidden="true">→</span>
+            Explore {study.flow.total} rollouts <span aria-hidden="true">→</span>
           </a>
         </div>
       </div>
@@ -127,7 +127,7 @@ const commit = study.source.commit.slice(0, 7);
         };
         addEventListener('scroll', onScroll, { passive: true });
         onScroll();
-      }
+      } else nav.setAttribute('data-solid', '');
 
       const spy = new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-spy]')].map((a) => [a.dataset.spy!, a]));
       const sections = [...spy.keys()].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];

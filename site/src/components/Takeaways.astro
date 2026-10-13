@@ -1,0 +1,368 @@
+---
+import { SITE } from '../lib/site';
+import { href } from '../lib/media';
+import { study, goalByKey } from '../lib/study';
+import { FC } from '../lib/forecasts';
+
+const pts = (x: number) => (100 * x).toFixed(1);
+const signed = (x: number) => `${x < 0 ? '−' : '+'}${Math.abs(100 * x).toFixed(1)}`;
+const dec = (x: number, d = 4) => `${x < 0 ? '−' : '+'}${Math.abs(x).toFixed(d)}`;
+
+const head = study.contrasts.TF_RF.anytime.All;
+const byGoal = [...study.relation].sort((a, b) => a.est - b.est);
+const lo = byGoal[0];
+const hi = byGoal[byGoal.length - 1];
+const fluxRF = study.vqa.summary.text.F3[2];
+const nanoRF = study.vqa.summary.imagesCamera.N3[2];
+const pooled = FC.utility.rows.find((r) => r.model === 'All')!;
+const [ciLo, ciHi] = FC.utility.ci;
+if (study.vqa.summary.text.N3[2] !== 10) throw new Error('Takeaways assume Nano reads every text-only RF goal correctly');
+
+const cards = [
+  {
+    to: 'finding',
+    sec: '01 · The finding',
+    stat: pts(head.est),
+    unit: 'points',
+    claim: 'Saying the reference first lowers stable placement',
+    body: `Same goal, same start, same model. Only the wording changes, and the target-first advantage appears in all three models (95% CI ${pts(head.ci[0])}–${pts(head.ci[1])}).`,
+  },
+  {
+    to: 'results',
+    sec: '03 · Results',
+    stat: `${signed(lo.est)} to ${signed(hi.est)}`,
+    unit: 'points by goal',
+    claim: 'Averages hide reversals',
+    body: `The gap flips sign across relations, from ${goalByKey(lo.key).label.toLowerCase()} to ${goalByKey(hi.key).label.toLowerCase()}. Opposite effects can cancel to zero in a scene score.`,
+  },
+  {
+    to: 'failures',
+    sec: '04 · Failures',
+    stat: `${pts(study.rates.anytime)}% → ${pts(study.rates.end)}%`,
+    unit: 'any time → end',
+    claim: 'Placements do not last, and can come from the wrong object',
+    body: `Only ${study.flow.end} of the ${study.flow.anytime} episodes that reach a stable placement still hold it at the end, and a spatial check can pass because the robot moved the reference instead of the target.`,
+  },
+  {
+    to: 'language',
+    sec: '05 · Interpreting the goal',
+    stat: `${fluxRF} / 10`,
+    unit: 'reference-first read correctly',
+    claim: 'The language backbones already misread the goal',
+    body: `Tested alone, FLUX's text encoder reverses the relation in every reference-first error. Nano reads all ten correctly from text, yet drops to ${nanoRF.toFixed(1)}% once images and camera descriptions are added.`,
+  },
+  {
+    to: 'forecasts',
+    sec: '06 · Forecasts',
+    stat: dec(pooled.delta),
+    unit: 'Brier change from video',
+    claim: 'Generated futures added no measurable warning',
+    body: `VLM labels of each policy's predicted video did not improve held-out prediction of manipulation errors (95% CI ${dec(ciLo)} to ${dec(ciHi)}). Unreliable annotations keep this from being a verdict on the videos themselves.`,
+  },
+];
+
+const checks = [
+  'Pair equivalent wordings from identical initial states, and report every relation, not only the average.',
+  'Verify that the intended object moved, not just that the relation became true.',
+  'Check that the requested arrangement still holds when the episode ends.',
+  'Test the language backbone on the same goals, with and without images.',
+];
+---
+
+<section class="section takeaways" id="takeaways">
+  <div class="wrap">
+    <header class="intro">
+      <div class="eyebrow">07 · Takeaways</div>
+      <h2>Success under one wording is not steerability</h2>
+      <p class="lede">
+        Every result on this page comes from the same 864 rollouts, the same starts and the same scorer. Together they argue for evaluating
+        world-action models on consistency across equivalent instructions, not on task success alone.
+      </p>
+    </header>
+
+    <ol class="cards">
+      {
+        cards.map((c) => (
+          <li>
+            <a class="card" href={`#${c.to}`}>
+              <span class="sec">{c.sec}</span>
+              <span class="stat num">{c.stat}</span>
+              <span class="unit">{c.unit}</span>
+              <span class="claim">{c.claim}</span>
+              <span class="body">{c.body}</span>
+              <span class="go" aria-hidden="true">
+                Jump to section →
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="lower">
+      <div class="checks">
+        <h3>What a steerability evaluation should check</h3>
+        <ol>
+          {checks.map((c) => <li>{c}</li>)}
+        </ol>
+        <div class="links">
+          <a class="btn primary" href={href('explore/')}>Explore all 864 rollouts →</a>
+          {SITE.paper && <a class="btn" href={SITE.paper}>Paper (PDF)</a>}
+          {!SITE.anonymous && SITE.code && <a class="btn" href={SITE.code}>Code</a>}
+        </div>
+      </div>
+
+      <div class="cite" id="cite">
+        <div class="cite-head">
+          <h3>Cite</h3>
+          <button class="btn copy" type="button" data-copy>Copy BibTeX</button>
+        </div>
+        <pre><code data-bib>{SITE.bibtex}</code></pre>
+        <p class="copied" role="status" aria-live="polite" data-status></p>
+        {SITE.anonymous && <p class="fine">Author names will be added after the anonymous workshop review.</p>}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('.takeaways [data-copy]')) {
+    const root = btn.closest('.cite')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    btn.addEventListener('click', async () => {
+      const text = root.querySelector('[data-bib]')!.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        status.textContent = 'BibTeX copied to the clipboard.';
+        btn.textContent = 'Copied ✓';
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents(root.querySelector('[data-bib]')!);
+        getSelection()?.removeAllRanges();
+        getSelection()?.addRange(range);
+        status.textContent = 'Selected. Press Ctrl+C or ⌘C to copy.';
+      }
+      setTimeout(() => {
+        btn.textContent = 'Copy BibTeX';
+        status.textContent = '';
+      }, 2400);
+    });
+  }
+</script>
+
+<style>
+  .cards {
+    list-style: none;
+    margin: clamp(40px, 5vw, 64px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  /* Five cards: two per row with the last spanning on tablets; three then two on desktops. */
+  @media (min-width: 640px) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cards li:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .cards {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .cards li {
+      grid-column: span 2;
+    }
+
+    .cards li:nth-child(n + 4) {
+      grid-column: span 3;
+    }
+  }
+
+  .cards li {
+    display: grid;
+  }
+
+  .card {
+    display: grid;
+    grid-template-rows: auto auto auto auto 1fr auto;
+    align-content: start;
+    gap: 6px;
+    padding: 22px 22px 18px;
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    background: var(--card);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      transform 0.25s var(--ease),
+      box-shadow 0.25s,
+      border-color 0.25s;
+  }
+
+  .card:hover,
+  .card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+    border-color: var(--ink-2);
+  }
+
+  .sec {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .stat {
+    margin-top: 10px;
+    font-family: var(--serif);
+    font-size: clamp(2rem, 1.6rem + 1.2vw, 2.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .unit {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .claim {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 1.02rem;
+    line-height: 1.35;
+  }
+
+  .body {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+
+  .go {
+    margin-top: 12px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .card:hover .go,
+  .card:focus-visible .go {
+    color: var(--ink);
+  }
+
+  .lower {
+    margin-top: clamp(48px, 6vw, 80px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+  }
+
+  h3 {
+    font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.6rem);
+    margin: 0;
+  }
+
+  .checks ol {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: chk;
+    display: grid;
+    gap: 12px;
+  }
+
+  .checks li {
+    counter-increment: chk;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 12px;
+    align-items: baseline;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .checks li::before {
+    content: counter(chk);
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--rule-2);
+    font: 600 0.8rem var(--mono);
+    color: var(--ink);
+    transform: translateY(6px);
+  }
+
+  .links {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .cite {
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    background: var(--card);
+    padding: 20px 20px 16px;
+    min-width: 0;
+  }
+
+  .cite-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .copy {
+    font-size: 0.84rem;
+    padding: 7px 14px;
+  }
+
+  pre {
+    margin: 16px 0 0;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--stage);
+    color: #dfe3e8;
+    font: 0.78rem/1.6 var(--mono);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .copied {
+    min-height: 1.4em;
+    margin: 8px 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .fine {
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 899px) {
+    .lower {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

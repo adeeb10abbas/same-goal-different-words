@@ -34,6 +34,36 @@ export interface Interval {
   starts?: { scene: string; slot: number; d: number }[];
 }
 
+/** Paper Section 4 / Appendix F. Forms are keyed by their paper names; conditions are T (text), H (text + camera
+ *  descriptions), I (images), IH (images + camera descriptions). Percentages are already in points. */
+export type VqaForm = 'DIR' | 'TF' | 'RF';
+export type VqaCond = 'T' | 'H' | 'I' | 'IH';
+export type VqaErr = 'correct' | 'reversed' | 'swapped' | 'swappedReversed' | 'other' | 'support';
+export interface VqaBank {
+  balanced_accuracy: Interval;
+  recall_match: Interval;
+  recall_nonmatch: Interval;
+  answers: Record<'match' | 'nonmatch' | 'unknown', number>;
+  /** Answers to answerable items only, both code orders. */
+  answersAnswerable: Record<'match' | 'nonmatch' | 'unknown', number>;
+  items: number;
+  answerable: number;
+  /** Answerable items whose views truly show the requested relation. */
+  goldMatch: number;
+}
+export interface VqaStudy {
+  /** [DIR, TF, RF]: correct out of 10 for text/camera, scene-balanced % for images/imagesCamera. */
+  summary: Record<'text' | 'camera' | 'images' | 'imagesCamera', Record<ModelId, [number, number, number]>>;
+  contrasts: Record<ModelId, Record<'image_I_minus_T' | 'image_IH_minus_H' | 'header_IH_minus_I', Record<VqaForm, Interval>>>;
+  placement: Record<
+    ModelId,
+    { textEarly: number; textLate: number; images: number; imagesEarly: number; imagesLate: number; gap: Interval }
+  >;
+  errors: Record<ModelId, Record<VqaCond, Record<VqaForm, Partial<Record<VqaErr, number>>>>>;
+  c2: Record<ModelId, { initial: VqaBank; secondary: VqaBank; noImage: Record<'match' | 'nonmatch' | 'unknown', number> }>;
+  tokens: Record<ModelId, Record<string, { prompt: number; min: number; max: number } | number>>;
+}
+
 export const study = raw as unknown as {
   title: string;
   venue: string;
@@ -47,7 +77,7 @@ export const study = raw as unknown as {
   relation: { key: string; est: number; ci: [number, number]; tf: number; rf: number; dir: number; byModel: Record<ModelId, [number, number, number]> }[];
   cells: Record<string, [number, number, number]>;
   forecast: any;
-  vqa: any;
+  vqa: VqaStudy;
   /** Appendix B: policy settings (rows are [setting, Nano, Edge, FLUX]) and the scorer's constants. */
   settings: {
     rows: [string, string, string, string][];

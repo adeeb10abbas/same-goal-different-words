@@ -463,6 +463,18 @@ def main():
     from build_vqa import build as build_vqa  # noqa: E402  (sibling module)
     vqa_study, vqa_public = build_vqa(check, items, args.vqa_items.parent, MODELS)
     vqa.update(vqa_study)
+    # The per-item tables are served lazily from public/data/vqa.json, whose lanes carry every scored
+    # answer with its exact output tokens; check that the tokens reproduce each scored answer first.
+    decoded_ok = True
+    for it in items:
+        lane = vqa_public["lanes"][lane_model[it["lane"]]]
+        _pt, seq, err = lane["b2"][it["query_id"]]
+        text = "".join(lane["seqs"][seq]).replace("<|im_end|>", "")
+        decoded_ok &= err == it["error_class"] and json.loads(text) == (json.loads(it["answer"]) if it["answer"] else None)
+    check.eq("console tokens reproduce every scored VQA answer", decoded_ok, True)
+    for k in ("text", "camera", "images", "imagesCamera", "placementText", "placementImages"):
+        del vqa[k]
+    vqa_public["pairs"] = vqa.pop("pairs")
 
     # ---- episodes
     episodes = []

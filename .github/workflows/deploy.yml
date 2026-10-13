@@ -1,0 +1,49 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      # dev-*.astro pages are isolated section harnesses for local work; they are not part of the site.
+      - run: rm -f src/pages/dev-*.astro
+      - run: npm run build
+        env:
+          # Rollout videos, thumbnails and simulator timelines live in a Hugging Face dataset (5.9 GB, too large for Pages).
+          PUBLIC_MEDIA_BASE: https://huggingface.co/datasets/arrowhead/same-goal-different-words-media/resolve/main
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,4 +1,4 @@
-/** Publication metadata. Authors stay empty while the workshop review is anonymous. */
+/** Publication metadata. `aff` indexes are 1-based positions in `affiliations`. */
 export const SITE = {
   title: 'Same Goal, Different Words',
   subtitle: 'Spatial Instruction Sensitivity in World-Action Models',
@@ -8,13 +8,20 @@ export const SITE = {
   workshop: 'Do Robots Need World Models?',
   description:
     'Three world-action models receive the same goal in three equivalent wordings. Saying the target first places it 12 points more often than saying the reference first — and placements are often undone before the episode ends.',
-  authors: [] as { name: string; url?: string; affiliation?: string }[],
-  anonymous: true,
+  authors: [
+    { name: 'Ali-Adeeb Abbas', aff: [1, 2] },
+    { name: 'Esmaeil Seraj', aff: [2] },
+    { name: 'Behrad Toghi', aff: [2] },
+    { name: 'Taskin Padir', aff: [1, 3] },
+  ] as { name: string; url?: string; aff: number[] }[],
+  affiliations: ['RIVeR Lab, Northeastern University', 'General Motors Robotics', 'Amazon Robotics'],
+  contact: 'abbas.a@northeastern.edu',
+  anonymous: false,
   paper: null as string | null,
   code: 'https://github.com/adeeb10abbas/world-action-model-steerability',
   bibtex: `@inproceedings{same_goal_different_words_2026,
   title     = {Same Goal, Different Words: Spatial Instruction Sensitivity in World-Action Models},
-  author    = {Anonymous},
+  author    = {Abbas, Ali-Adeeb and Seraj, Esmaeil and Toghi, Behrad and Padir, Taskin},
   booktitle = {CoRL 2026 Workshop: Do Robots Need World Models?},
   year      = {2026},
   note      = {Under review}

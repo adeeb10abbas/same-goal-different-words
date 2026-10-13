@@ -175,16 +175,24 @@ def build(check, items: list[dict], src: Path, models: list[dict]):
         for bank in ("initial", "secondary"):
             base = f"lanes/{lane}/c2/original/{bank}/balanced_accuracy_all_forms/"
             ans = Counter()
+            ans_ok = Counter()
             for r in c2rows:
                 if r["lane"] == lane and r["bank"] == bank:
                     ans[r["answer_o0"]] += 1
                     ans[r["answer_o1"]] += 1
+                    if r["answerable"] == "True":
+                        ans_ok[r["answer_o0"]] += 1
+                        ans_ok[r["answer_o1"]] += 1
             rec[bank] = {k: {"est": _pp(met[base + k][0]), "ci": [_pp(met[base + k][1]), _pp(met[base + k][2])]}
                          for k in ("balanced_accuracy", "recall_match", "recall_nonmatch")}
             rec[bank]["answers"] = {k: ans.get(k, 0) for k in ("match", "nonmatch", "unknown")}
+            # Answers to answerable items only (both code orders), and how many of those items truly show the relation.
+            rec[bank]["answersAnswerable"] = {k: ans_ok.get(k, 0) for k in ("match", "nonmatch", "unknown")}
             rec[bank]["items"] = sum(1 for r in c2rows if r["lane"] == lane and r["bank"] == bank)
             rec[bank]["answerable"] = sum(1 for r in c2rows if r["lane"] == lane and r["bank"] == bank
                                           and r["answerable"] == "True")
+            rec[bank]["goldMatch"] = sum(1 for r in c2rows if r["lane"] == lane and r["bank"] == bank
+                                         and r["answerable"] == "True" and r["gold"] == "match")
         mapping = {f"{b}|{o}": prompts["c2"][f"{b}|{o}"]["mapping"] for b in ("initial", "secondary") for o in (0, 1)}
         noimg = Counter()
         for q, (_p, _o, kind, i) in tokens[lane]["items"].items():
@@ -196,6 +204,8 @@ def build(check, items: list[dict], src: Path, models: list[dict]):
         c2[m] = rec
     bas = [c2[m][b]["balanced_accuracy"]["est"] for m in lane_of for b in ("initial", "secondary")]
     check.eq("C2 balanced accuracy range", (min(bas), max(bas)), (48.5, 50.1))
+    check.eq("C2 answerable items that show the relation",
+             [(c2[m]["initial"]["goldMatch"], c2[m]["secondary"]["goldMatch"]) for m in lane_of], [(66, 90)] * 3)
     check.eq("C2 no-image prompts per component", [sum(c2[m]["noImage"].values()) for m in lane_of], [60, 60, 60])
 
     with open(src / "vqa_c2_truth_pairs.csv") as fh:

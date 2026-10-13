@@ -8,3 +8,4 @@ media/
 *.tar
 .DS_Store
 site/qa/report/
+site/qa/.tmp*
