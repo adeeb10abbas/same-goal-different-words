@@ -268,7 +268,7 @@
             95% CI {fmtCI(rel.ci)} · descriptive, from {spell(STARTS)} physical starts
           {/if}
         </p>
-        <div class="tscroll" role="region" aria-label="Counts for {goal.label}" tabindex="0" data-qa-scroll>
+        <div class="tscroll" role="region" aria-label="Counts for {goal.label}" tabindex="0" data-qa-scroll="x">
           <table class="dtable mini">
             <thead>
               <tr>
@@ -452,7 +452,7 @@
     border-radius: 4px;
     font-style: normal;
     font-family: var(--mono);
-    font-size: 0.6rem;
+    font-size: 0.64rem;
     font-weight: 600;
     letter-spacing: 0.04em;
     color: #fff;
@@ -539,7 +539,7 @@
   }
 
   sup {
-    font-size: 0.7em;
+    font-size: max(0.7em, 0.625rem);
     margin-left: 1px;
     color: var(--muted);
   }
@@ -657,7 +657,7 @@
 
   .cth {
     font-family: var(--mono);
-    font-size: 0.62rem;
+    font-size: 0.64rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted);
@@ -674,7 +674,7 @@
   .cnts i {
     font-style: normal;
     font-family: var(--mono);
-    font-size: 0.6rem;
+    font-size: 0.64rem;
     font-weight: 600;
     color: #fff;
     border-radius: 4px;

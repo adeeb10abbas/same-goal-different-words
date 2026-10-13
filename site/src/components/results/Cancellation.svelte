@@ -363,7 +363,7 @@
   }
 
   sup {
-    font-size: 0.7em;
+    font-size: max(0.7em, 0.625rem);
     margin-left: 1px;
     color: var(--muted);
   }

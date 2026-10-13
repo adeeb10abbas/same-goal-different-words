@@ -6,7 +6,7 @@
  *   data-qa-ignore           skip the element and its subtree entirely
  *   data-qa-overlay          intentional overlay (badge on a video, marker on a track, tooltip): its text and boxes are
  *                            only compared with other content of the same overlay
- *   data-qa-scroll           intentional scroll container
+ *   data-qa-scroll           intentional scroll container; ="x" or ="y" declares its only scroll axis
  *   data-qa-fold="<query>"   element must end above the fold at scroll 0 while the media query matches
  *
  * Opt-ins:
@@ -40,9 +40,11 @@
   // ---------------------------------------------------------------- caches, reset at the start of every pass
   let S = new Map();
   let I = new Map();
+  let C = null;
   const fresh = () => {
     S = new Map();
     I = new Map();
+    C = null;
   };
   const cs = (el) => {
     let s = S.get(el);
@@ -131,7 +133,19 @@
     return null;
   }
 
-  const ROOT = { hidden: false, op: 1, self: [], kids: [], layer: null, ignore: false, overlay: null };
+  const ROOT = { hidden: false, skipKids: false, op: 1, self: [], kids: [], layer: null, ignore: false, overlay: null };
+
+  /**
+   * Content the browser lays out but never paints, so getBoundingClientRect returns boxes for it wherever it would
+   * sit (e.g. over the next section): everything in a closed <details> but its summary, and anything else skipped by
+   * content-visibility: hidden (hidden=until-found). checkVisibility() covers the general case; elements without a
+   * box of their own (display: contents) inherit from their parent instead.
+   */
+  function skipped(el, parent, p, s) {
+    if (p.skipKids) return true;
+    if (parent && parent.tagName === 'DETAILS' && !parent.open && el !== parent.querySelector(':scope > summary')) return true;
+    return s.display !== 'contents' && typeof el.checkVisibility === 'function' && !el.checkVisibility();
+  }
 
   /**
    * Visibility of an element. self = clips that apply to the element itself; kids = clips for its content
@@ -178,7 +192,8 @@
     }
 
     n = {
-      hidden: p.hidden || s.display === 'none' || s.contentVisibility === 'hidden' || zeroClip(s) || (svg && SVG_UNRENDERED.has(el.tagName)),
+      hidden: p.hidden || s.display === 'none' || zeroClip(s) || (svg && SVG_UNRENDERED.has(el.tagName)) || skipped(el, parent, p, s),
+      skipKids: s.contentVisibility === 'hidden',
       op: p.op * parseFloat(s.opacity),
       self,
       kids,
@@ -188,6 +203,62 @@
     };
     I.set(el, n);
     return n;
+  }
+
+  /** Parts of r outside c (at most four rects). */
+  function minus(r, c) {
+    const x = inter(r, c);
+    if (!x) return [r];
+    return [
+      { x: r.x, y: r.y, w: r.w, h: x.y - r.y },
+      { x: r.x, y: x.y + x.h, w: r.w, h: r.y + r.h - x.y - x.h },
+      { x: r.x, y: x.y, w: x.x - r.x, h: x.h },
+      { x: x.x + x.w, y: x.y, w: r.x + r.w - x.x - x.w, h: x.h },
+    ].filter((p) => p.w >= 0.5 && p.h >= 0.5);
+  }
+
+  /** Nearest ancestor that scrolls its content, or null for the page. */
+  function scrollerOf(el) {
+    for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
+      const s = cs(e);
+      if (/auto|scroll/.test(s.overflowX) || /auto|scroll/.test(s.overflowY)) return e;
+    }
+    return null;
+  }
+
+  const stuck = (el, stop) => {
+    for (let e = el; e && e !== stop; e = e.parentElement) if (cs(e).position === 'sticky') return true;
+    return false;
+  };
+
+  /**
+   * Opaque sticky boxes inside a scroll container (a frozen first table column) hide what scrolls beneath them, so
+   * their rects are cut out of all other non-sticky content of that scroller.
+   */
+  function covers() {
+    if (C) return C;
+    C = [];
+    for (const el of document.body.querySelectorAll('*')) {
+      if (el.namespaceURI === SVG) continue;
+      const s = cs(el);
+      if (s.position !== 'sticky' || alpha(s.backgroundColor) < 0.9 || s.visibility !== 'visible') continue;
+      const inf = info(el);
+      if (inf.hidden || inf.ignore || inf.op < 0.9) continue;
+      const sc = scrollerOf(el);
+      const r = sc && clipTo(doc(el.getBoundingClientRect()), inf.self);
+      if (r) C.push({ el, sc, r });
+    }
+    return C;
+  }
+
+  function uncovered(el, rs) {
+    let out = rs;
+    for (const c of covers()) {
+      if (!out.length) break;
+      if (c.el.contains(el) || el.contains(c.el) || !c.sc.contains(el) || stuck(el, c.sc)) continue;
+      out = out.flatMap((r) => minus(r, c.r));
+    }
+    return out;
   }
 
   // ---------------------------------------------------------------- naming
@@ -224,7 +295,7 @@
 
   function prep(it) {
     it.bands = it.rects.map((r) => band(r, it));
-    it.vis = it.bands.map((b) => clipTo(b, it.clips)).filter((b) => b && b.w >= 1 && b.h >= 1);
+    it.vis = uncovered(it.el, it.bands.map((b) => clipTo(b, it.clips)).filter(Boolean)).filter((b) => b.w >= 1 && b.h >= 1);
     it.hard = it.clips.filter((c) => c.hard);
     it.gone = sum(it.vis.map(area)) < 3;
     it.layer = it.inf.layer;
@@ -240,13 +311,17 @@
       const el = n.parentElement;
       if (!el || SKIP.has(el.tagName) || el.namespaceURI === SVG || !/\S/.test(n.data)) continue;
       const inf = info(el);
-      if (inf.hidden || inf.ignore || inf.op < 0.05 || cs(el).visibility !== 'visible') continue;
+      // Text directly inside a skipped container (a closed <details>, content-visibility: hidden) is not painted.
+      if (inf.hidden || inf.skipKids || (el.tagName === 'DETAILS' && !el.open)) continue;
+      if (inf.ignore || inf.op < 0.05 || cs(el).visibility !== 'visible') continue;
       range.selectNodeContents(n);
       const rects = [...range.getClientRects()].filter((r) => r.width >= 1 && r.height >= 1).map(doc);
       if (!rects.length) continue;
       let sb = el;
       while (sb.parentElement && cs(sb).display === 'inline') sb = sb.parentElement;
-      const k = sb.offsetWidth ? Math.min(4, Math.max(0.25, sb.getBoundingClientRect().width / sb.offsetWidth)) : 1;
+      // offsetWidth is rounded to whole pixels, so only a difference above 1 px is a real scale transform.
+      const bw = sb.getBoundingClientRect().width;
+      const k = sb.offsetWidth && Math.abs(bw - sb.offsetWidth) > 1 ? Math.min(4, Math.max(0.25, bw / sb.offsetWidth)) : 1;
       items.push(prep({ el, node: n, svg: false, text: snip(n.data), fs: parseFloat(cs(el).fontSize) * k, rects, inf, clips: inf.kids }));
     }
     for (const t of document.querySelectorAll('svg text')) {
@@ -423,9 +498,20 @@
     return rs.length ? rs[rs.length - 1] : null;
   }
 
+  /** Innermost superscript or subscript around el (<sup>, <sub> or vertical-align: super/sub) within its line box. */
+  function script(el) {
+    for (let e = el; e && e !== document.body; e = e.parentElement) {
+      const s = cs(e);
+      if (e.tagName === 'SUP' || e.tagName === 'SUB' || s.verticalAlign === 'super' || s.verticalAlign === 'sub') return e;
+      if (s.display !== 'inline') return null;
+    }
+    return null;
+  }
+
   /**
    * Words from neighbouring elements that render with no space between them, e.g. "commit9a6fcde" when a template
-   * drops the whitespace before an inline element. Digit pairs are allowed (counters split into spans).
+   * drops the whitespace before an inline element. Digit pairs are allowed (counters split into spans), and so is the
+   * edge of a superscript or subscript, which attaches to its word by design ("Abbas¹", "¹RIVeR Lab", "B_baseline").
    */
   function joined(items) {
     const out = [];
@@ -437,6 +523,7 @@
       const ca = a.node.data.slice(-1);
       const cb = b.node.data[0];
       if (!WORD_END.test(ca) || !WORD_START.test(cb) || (DIGIT.test(ca) && DIGIT.test(cb))) continue;
+      if (script(a.el) !== script(b.el)) continue;
       const ra = charRect(a.node, a.node.data.length - 1);
       const rb = charRect(b.node, 0);
       if (!ra || !rb) continue;
@@ -523,7 +610,8 @@
       if (!kind) continue;
       const r = clipTo(doc(el.getBoundingClientRect()), inf.self);
       if (!r || r.w < 4 || r.h < 4) continue;
-      out.push({ el, kind, r, inf });
+      const parts = uncovered(el, [r]).filter((p) => p.w >= 2 && p.h >= 2);
+      if (parts.length) out.push({ el, kind, r, parts, inf });
     }
     return out;
   }
@@ -536,10 +624,11 @@
       for (const o of obs) {
         if (o.el.contains(it.el) || o.inf.layer !== it.layer || o.inf.overlay !== it.overlay) continue;
         let hit = null;
-        for (const b of it.vis) {
-          const x = inter(b, o.r);
-          if (x && x.w >= 2 && x.h >= 2 && area(x) >= 6 && (!hit || area(x) > area(hit))) hit = x;
-        }
+        for (const b of it.vis)
+          for (const p of o.parts) {
+            const x = inter(b, p);
+            if (x && x.w >= 2 && x.h >= 2 && area(x) >= 6 && (!hit || area(x) > area(hit))) hit = x;
+          }
         if (hit)
           out.push(
             issue(`text-over-${o.kind}`, o.kind === 'graphic' ? 'warn' : 'error', it, {
@@ -562,12 +651,18 @@
       if (inf.hidden || inf.ignore || inf.op < 0.05) continue;
       const s = cs(el);
       if (s.visibility !== 'visible' || s.pointerEvents === 'none' || el.disabled) continue;
-      const frags = [...el.getClientRects()]
-        .map(doc)
-        .map((r) => clipTo(r, inf.self))
-        .filter((r) => r && r.w >= 1 && r.h >= 1);
+      const boxes = [...el.getClientRects()].map(doc);
+      const frags = uncovered(
+        el,
+        boxes.map((r) => clipTo(r, inf.self)).filter(Boolean),
+      ).filter((r) => r.w >= 1 && r.h >= 1);
       if (!frags.length) continue;
-      T.push({ el, r: union(frags), frags, inf, inline: s.display === 'inline' });
+      // A target cut by the edge of a scroll container is partly scrolled out of view, not small: its size counts only
+      // hard clips (overflow: hidden or clip) that scroll with it, i.e. those inside its nearest scroll container.
+      const sc = scrollerOf(el);
+      const hard = inf.self.filter((c) => c.hard && (!sc || sc.contains(c.el)));
+      const whole = boxes.map((r) => clipTo(r, hard)).filter((r) => r && r.w >= 1 && r.h >= 1);
+      T.push({ el, r: union(frags), size: union(whole.length ? whole : frags), frags, inf, inline: s.display === 'inline' });
     }
     return T;
   }
@@ -600,7 +695,7 @@
           );
       }
     // WCAG 2.5.8: at least 24×24 px, or a 24 px circle around the target that touches no other target.
-    const undersized = new Set(T.filter((t) => !t.inline && (t.r.w < 23.5 || t.r.h < 23.5)));
+    const undersized = new Set(T.filter((t) => !t.inline && (t.size.w < 23.5 || t.size.h < 23.5)));
     for (const t of undersized) {
       const c = center(t.r);
       const crowded = T.some(
@@ -614,7 +709,7 @@
       if (crowded)
         out.push(
           issue('target-small', 'warn', { el: t.el, text: label(t.el), layer: t.inf.layer }, {
-            msg: `${Math.round(t.r.w)}×${Math.round(t.r.h)} px with neighbours closer than the 24 px spacing`,
+            msg: `${Math.round(t.size.w)}×${Math.round(t.size.h)} px with neighbours closer than the 24 px spacing`,
             rects: [t.r],
           }),
         );
@@ -657,9 +752,22 @@
       const sy = /auto|scroll/.test(s.overflowY);
       if (!sx && !sy) continue;
       const inf = info(el);
-      if (inf.hidden || inf.ignore || el.hasAttribute('data-qa-scroll')) continue;
+      if (inf.hidden || inf.ignore) continue;
       const dx = el.scrollWidth - el.clientWidth;
       const dy = el.scrollHeight - el.clientHeight;
+      if (el.hasAttribute('data-qa-scroll')) {
+        // A declared axis (data-qa-scroll="y" for a sheet or sidebar) makes overflow on the other axis a layout bug.
+        const axis = el.getAttribute('data-qa-scroll');
+        const d = axis === 'y' ? (sx ? dx : 0) : axis === 'x' ? (sy ? dy : 0) : 0;
+        if (d > 1)
+          out.push(
+            issue('scroll-axis', 'error', { el, text: '', layer: inf.layer }, {
+              msg: `scrolls ${d} px ${axis === 'y' ? 'sideways' : 'vertically'}; declared data-qa-scroll="${axis}"`,
+              rects: [doc(el.getBoundingClientRect())],
+            }),
+          );
+        continue;
+      }
       if ((sx && dx > 1) || (sy && dy > 1))
         out.push(
           issue('unexpected-scroll', 'warn', { el, text: '' }, { msg: `scrolls by ${Math.max(sx ? dx : 0, sy ? dy : 0)} px`, rects: [doc(el.getBoundingClientRect())] }),
@@ -695,7 +803,7 @@
     if (scrollY > 0) return out;
     for (const el of document.querySelectorAll('[data-qa-fold]')) {
       const q = el.getAttribute('data-qa-fold');
-      if (q && !matchMedia(q).matches) continue;
+      if ((q && !matchMedia(q).matches) || info(el).hidden) continue;
       const r = el.getBoundingClientRect();
       if (r.bottom > innerHeight + 0.5)
         out.push(issue('below-fold', 'warn', { el, text: '' }, { msg: `ends ${Math.round(r.bottom - innerHeight)} px below the fold`, rects: [doc(r)] }));
@@ -869,6 +977,18 @@
     return out;
   }
 
+  /** Whether focus restyles a descendant of el (compared with el blurred), which then draws the focus ring. */
+  function innerRing(el) {
+    const kids = [...el.querySelectorAll('*')];
+    const P = ['stroke', 'stroke-width', 'fill', 'outline-style', 'outline-color', 'box-shadow', 'opacity', 'visibility', 'display'];
+    const snap = () => kids.map((k) => P.map((p) => getComputedStyle(k).getPropertyValue(p)).join('|'));
+    const on = snap();
+    el.blur();
+    const off = snap();
+    el.focus({ preventScroll: true });
+    return on.some((v, i) => v !== off[i]);
+  }
+
   /**
    * The element focused by the last Tab press. It must be visible, on screen below the fixed header, not covered by
    * another element, and draw a focus ring that no ancestor clip, the header or the viewport edge cuts off.
@@ -927,7 +1047,22 @@
     }
 
     const ow = s.outlineStyle !== 'none' ? parseFloat(s.outlineWidth) || 0 : 0;
-    if (ow < 1 && (!s.boxShadow || s.boxShadow === 'none')) {
+    const shadow = !!s.boxShadow && s.boxShadow !== 'none';
+    const clear = (c) => c === 'transparent' || /rgba\([^)]*,\s*0\)$|\/\s*0\)$/.test(c);
+    // WebKit paints no outline or box-shadow on SVG content, and a transparent outline shows only in forced-colours mode,
+    // so in those cases the ring has to come from something that focus restyles inside the element (a stroke, a fill).
+    const svgKid = el instanceof SVGElement && !(el instanceof SVGSVGElement);
+    if (svgKid || (ow >= 1 && clear(s.outlineColor) && !shadow)) {
+      if (!innerRing(el))
+        put(
+          'focus-ring-missing',
+          'error',
+          svgKid
+            ? 'is SVG content, where WebKit paints no outline or box-shadow, and focus restyles nothing inside it'
+            : 'has a transparent outline and focus restyles nothing inside it',
+          [R],
+        );
+    } else if (ow < 1 && !shadow) {
       put('focus-ring-missing', 'error', 'shows no outline or box-shadow while focused', [R]);
     } else if (ow >= 1) {
       // Sample the middle of the outline stroke all the way round; every sample must survive every clip.

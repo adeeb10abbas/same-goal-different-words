@@ -527,8 +527,14 @@
       right: 14px;
     }
 
+    /* Visually hidden, not removed: the full label stays the tab's accessible name. */
     .tl {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
 
     .ts {

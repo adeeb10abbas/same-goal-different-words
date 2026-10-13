@@ -34,6 +34,7 @@
     | { k: 'cams'; cams: { view: View; desc: string | null }[] };
 
   const MAX_TOKENS = 3000;
+  const VIEW_SHORT: Record<View, string> = { wrist: 'Wrist', left: 'Left', right: 'Right' };
   const HEAD = 'Camera views of the current scene';
 
   const blocks = $derived.by((): Block[] => {
@@ -125,7 +126,7 @@
     </button>
   </header>
 
-  <div class="box" bind:this={box} data-qa-scroll>
+  <div class="box" bind:this={box} data-qa-scroll="y">
     {#each blocks as b, bi (bi)}
       {#if b.k === 'fold'}
         {#if open[b.id]}
@@ -155,7 +156,9 @@
               {#if images}
                 <figure class="shot" transition:slide={{ duration: reducedMotion() ? 0 : 380 }}>
                   <img src={imageUrl(frame, c.view)} width="640" height="360" alt="{VIEW_LABEL[c.view]}, start {slot}" loading="lazy" />
-                  <figcaption data-qa-overlay>{VIEW_LABEL[c.view]}</figcaption>
+                  <figcaption data-qa-overlay
+                    ><span class="vl">{VIEW_LABEL[c.view]}</span><span class="vs" aria-hidden="true">{VIEW_SHORT[c.view]}</span></figcaption
+                  >
                 </figure>
               {:else}
                 <p class="slot">empty line: no image</p>
@@ -341,6 +344,7 @@
   }
 
   .shot {
+    container-type: inline-size;
     position: relative;
     margin: 0;
     border-radius: 6px;
@@ -367,6 +371,26 @@
     font-size: 0.64rem;
     color: #fff;
     white-space: nowrap;
+  }
+
+  .vs {
+    display: none;
+  }
+
+  /* Thumbnails too narrow for the full camera name draw a short one; the full name stays for assistive tech. */
+  @container (max-width: 88px) {
+    .vl {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .vs {
+      display: inline;
+    }
   }
 
   .slot {

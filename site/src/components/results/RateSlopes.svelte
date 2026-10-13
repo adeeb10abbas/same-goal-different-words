@@ -208,7 +208,7 @@
     </div>
 
     <div class="side">
-      <div class="tscroll" role="region" aria-label="Placement rates by model and wording" tabindex="0" data-qa-scroll>
+      <div class="tscroll" role="region" aria-label="Placement rates by model and wording" tabindex="0" data-qa-scroll="x">
         <table class="dtable rt">
           <caption class="sr-only">
             Scene-balanced placement rates in percent, {o === 'anytime' ? 'at any time' : 'at episode end'}, {s === 'all'

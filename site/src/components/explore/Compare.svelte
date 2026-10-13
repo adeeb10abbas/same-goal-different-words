@@ -389,9 +389,27 @@
     left: 50%;
     bottom: 10px;
     transform: translateX(-50%);
+    width: max-content;
     max-width: calc(100% - 16px);
+    white-space: normal;
+    text-align: center;
     box-shadow: 0 6px 18px rgb(0 0 0 / 45%);
     background: rgb(13 15 19 / 82%) !important;
+  }
+
+  /* Long verdicts wrap inside a narrow pane; a 13px radius still reads as a pill on one line. */
+  .foot .status,
+  .final {
+    border-radius: 13px;
+  }
+
+  .foot .status {
+    white-space: normal;
+  }
+
+  .foot .status::before,
+  .final::before {
+    flex-shrink: 0;
   }
 
   .final.kept {
@@ -532,6 +550,11 @@
 
     .x {
       margin-left: auto;
+    }
+
+    /* The thumbnail is too small for the end-of-clip badge; the same verdict sits beside it. */
+    .final {
+      display: none;
     }
   }
 </style>

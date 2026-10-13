@@ -77,6 +77,7 @@
           class="cmp"
           data-c="0"
           tabindex={ac === 0 ? 0 : -1}
+          aria-haspopup="dialog"
           aria-label="Compare wordings · {where}"
           onclick={() => oncompare(row.key)}
         >
@@ -99,6 +100,7 @@
             class="cb"
             data-c={j + 1}
             tabindex={ac === j + 1 ? 0 : -1}
+            aria-haspopup="dialog"
             aria-label="{FORM_SHORT[c.e.f]} {statusText(c.e, c.o)}: {FORM_NAME[c.e.f]} wording. {where}.{on[j] ? '' : ' Outside the current filters.'}"
             onclick={() => onopen(c.e.id)}
             {@attach probe ? null : scrub}

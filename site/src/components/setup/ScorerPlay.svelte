@@ -617,9 +617,16 @@
     fill: transparent;
   }
 
+  /* WebKit paints no outline on SVG content, so the ring is a stroke on the hit area; the transparent outline still
+     shows in forced-colours mode. */
   .mover:focus-visible {
-    outline: 2px solid var(--tf);
-    outline-offset: 2px;
+    outline: 2px solid transparent;
+  }
+
+  .mover:focus-visible .hit {
+    stroke: var(--tf);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
   }
 
   .mover .body {

@@ -49,6 +49,7 @@
       data-c={c}
       data-scrub
       tabindex={ac === c ? 0 : -1}
+      aria-haspopup="dialog"
       aria-label="{FORM_SHORT[x.e.f]} {statusText(x.e, x.o)} {label(x)}: {FORM_NAME[x.e.f]} wording, start {x.e.c} of {starts}, {x.goal.label}. {x.e.id}."
       onclick={() => onopen(x.e.id)}
       {@attach probe ? null : scrub}

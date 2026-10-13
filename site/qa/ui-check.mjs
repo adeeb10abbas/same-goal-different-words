@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * UI QA. Renders pages in Chromium and WebKit over a viewport matrix, drives the interactive states (hero scrubbing,
- * every toggle group, every goal in both wordings, strip tooltips at the corners) and checks the layout of each state:
+ * every toggle group, every goal in both wordings, strip tooltips at the corners, every <details> opened, every scroll
+ * container scrolled through, one dialog of each kind opened with its tabs) and checks the layout of each state:
  * overlapping, clipped, escaping, off-screen and tiny text; words run together across elements; wrapped pills;
  * numbers split from their units at a line break; text over media or boxes; overlapping or small tap
  * targets; horizontal overflow; stray scrollbars; tooltips leaving the viewport; the fixed header covering text or
@@ -77,7 +78,7 @@ function parseArgs(argv) {
   return {
     ...o,
     base: o.base.replace(/\/?$/, '/'),
-    pages: list(o.pages),
+    pages: [...new Set(list(o.pages))],
     engines: list(o.engines).filter(Boolean),
     viewports: vps(o.viewports),
     motion: vps(o.motion),
@@ -372,17 +373,17 @@ async function* cycle(L, group, label, prefix = "") {
   if (orig >= 0) await step(L, `${label} restore`, () => opts.nth(orig).click());
 }
 
-async function* groupStates(page, L) {
+async function* groupStates(page, L, scope = 'main', prefix = '') {
   const crossed = new Set(CROSS.flat());
   // Responsive layouts may hide a control and offer a compact equivalent, so only visible groups are exercised.
-  const groups = page.locator('main [role=group]:has(button[aria-pressed])').filter({ visible: true });
+  const groups = page.locator(`${scope} [role=group]:has(button[aria-pressed])`).filter({ visible: true });
   const n = await groups.count();
   for (let i = 0; i < n; i++) {
     const label = (await groups.nth(i).getAttribute('aria-label')) ?? `group ${i + 1}`;
-    if (!crossed.has(label)) yield* cycle(L, groups.nth(i), label);
+    if (!crossed.has(label)) yield* cycle(L, groups.nth(i), label, prefix);
   }
   // Compact cycling buttons (e.g. the transport's speed button) step through every value and back to the start.
-  const cyclers = page.locator('main button.rate').filter({ visible: true });
+  const cyclers = page.locator(`${scope} button.rate`).filter({ visible: true });
   for (let i = 0, nc = await cyclers.count(); i < nc; i++) {
     const btn = cyclers.nth(i);
     const start = await btn.getAttribute('aria-label');
@@ -393,12 +394,12 @@ async function* groupStates(page, L) {
         name = (await btn.getAttribute('aria-label')) ?? '';
       });
       if (!ok || name === start) break;
-      yield { key: name };
+      yield { key: `${prefix}${name}` };
     }
   }
   for (const [a, b] of CROSS) {
-    const ga = page.locator(`main [role=group][aria-label="${a}"]`).first();
-    const gb = page.locator(`main [role=group][aria-label="${b}"]`).first();
+    const ga = page.locator(`${scope} [role=group][aria-label="${a}"]`).first();
+    const gb = page.locator(`${scope} [role=group][aria-label="${b}"]`).first();
     if (!(await ga.count())) continue;
     const opts = ga.locator('button[aria-pressed]');
     const k = await opts.count();
@@ -410,10 +411,78 @@ async function* groupStates(page, L) {
         name = await optName(opts.nth(i));
       });
       if (!ok) continue;
-      if (i !== orig) yield { key: `${a}=${name}` };
-      if (await gb.count()) yield* cycle(L, gb, b, `${a}=${name} · `);
+      if (i !== orig) yield { key: `${prefix}${a}=${name}` };
+      if (await gb.count()) yield* cycle(L, gb, b, `${prefix}${a}=${name} · `);
     }
     if (orig >= 0) await step(L, `${a} restore`, () => opts.nth(orig).click());
+  }
+}
+
+/** Tab lists: every tab other than the selected one, then the original tab again. */
+async function* tabStates(page, L, scope, prefix = '') {
+  const lists = page.locator(`${scope} [role=tablist]`).filter({ visible: true });
+  for (let i = 0, n = await lists.count(); i < n; i++) {
+    const tabs = lists.nth(i).locator('[role=tab]');
+    const k = await tabs.count();
+    const orig = await tabs.evaluateAll((ts) => ts.findIndex((t) => t.getAttribute('aria-selected') === 'true'));
+    for (let j = 0; j < k; j++) {
+      if (j === orig) continue;
+      let name = '';
+      const ok = await step(L, `tab ${j + 1}`, async () => {
+        await tabs.nth(j).click();
+        name = await tabs.nth(j).evaluate((t) => (t.getAttribute('aria-label') || t.innerText).replace(/\s+/g, ' ').trim().slice(0, 40));
+      });
+      if (ok) yield { key: `${prefix}tab=${name}` };
+    }
+    if (orig >= 0) await step(L, 'tab restore', () => tabs.nth(orig).click());
+  }
+}
+
+/**
+ * Dialogs exist only on demand, so no other state shows their content: the first visible trigger of each kind
+ * (aria-haspopup="dialog") opens one, which is checked with its tabs, toggle groups and scroll positions and run through
+ * axe (Chromium), then closed with Escape.
+ */
+async function* dialogStates(page, L) {
+  const DLG = 'dialog[open]';
+  const open = page.locator(DLG);
+  const triggers = page.locator('main [aria-haspopup="dialog"]').filter({ visible: true });
+  const kinds = new Set();
+  for (let i = 0, n = await triggers.count(); i < n; i++) {
+    const t = triggers.nth(i);
+    const kind = await t
+      .evaluate((el) => [el.tagName, ...[...el.classList].filter((c) => !/^(svelte-|astro-)/.test(c)).sort()].join('.'))
+      .catch(() => null);
+    if (!kind || kinds.has(kind)) continue;
+    kinds.add(kind);
+    let name = kind;
+    const ok = await step(L, `open dialog ${kind}`, async () => {
+      name = (await optName(t)) || kind;
+      await t.click();
+      await open.first().waitFor({ state: 'visible', timeout: 5000 });
+      // Media inside the dialog sizes its boxes from metadata, so wait for it (bounded) before measuring.
+      await page.evaluate((sel) => {
+        const vs = [...document.querySelectorAll(`${sel} video`)].filter((v) => v.readyState < 1);
+        return Promise.race([
+          Promise.all(vs.map((v) => new Promise((r) => v.addEventListener('loadedmetadata', r, { once: true })))),
+          new Promise((r) => setTimeout(r, 3000)),
+        ]);
+      }, DLG);
+    });
+    if (ok) {
+      const pre = `dialog: ${name}`;
+      yield { key: pre, axe: DLG };
+      yield* tabStates(page, L, DLG, `${pre} · `);
+      yield* groupStates(page, L, DLG, `${pre} · `);
+      yield* scrollStates(page, L, DLG, `${pre} · `);
+    }
+    await step(L, `close dialog ${kind}`, async () => {
+      for (let k = 0; k < 3 && (await open.count()); k++) {
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(200);
+      }
+      if (await open.count()) throw new Error('Escape did not close the dialog');
+    });
   }
 }
 
@@ -474,12 +543,87 @@ async function* tipStates(page, L, run) {
   await page.evaluate(() => scrollBy(0, 1));
 }
 
+/**
+ * Intentional scroll containers (data-qa-scroll) that overflow: a state checks only what is inside their viewport, so
+ * each one is also checked scrolled to every page of its content (a grid of steps up to the far edges), then reset.
+ */
+async function* scrollStates(page, L, scope, prefix = '') {
+  const boxes = page.locator(`${scope} [data-qa-scroll]`);
+  for (let i = 0, n = await boxes.count(); i < n; i++) {
+    const box = boxes.nth(i);
+    const g = await box.evaluate((el) => {
+      if (el.checkVisibility && !el.checkVisibility()) return null;
+      const by = el.getAttribute('aria-labelledby');
+      const name = el.getAttribute('aria-label') || (by && document.getElementById(by)?.textContent) || el.className.split(' ')[0];
+      return { w: el.clientWidth, h: el.clientHeight, sw: el.scrollWidth, sh: el.scrollHeight, name: name.replace(/\s+/g, ' ').trim().slice(0, 40) };
+    });
+    if (!g || (g.sw <= g.w + 1 && g.sh <= g.h + 1)) continue;
+    const stops = (max, view) => {
+      if (max <= 1) return [0];
+      const s = [];
+      for (let v = 0; v < max - 8; v += Math.max(40, Math.floor(0.8 * view))) s.push(v);
+      return [...s, max];
+    };
+    const xs = stops(g.sw - g.w, g.w);
+    const ys = stops(g.sh - g.h, g.h);
+    for (const y of ys)
+      for (const x of xs) {
+        if (!x && !y) continue;
+        const ok = await step(L, `scroll ${g.name} to ${x},${y}`, () =>
+          box.evaluate((el, [x, y]) => {
+            el.scrollLeft = x;
+            el.scrollTop = y;
+          }, [x, y]),
+        );
+        if (ok) yield { key: `${prefix}scroll ${g.name} @${x},${y}` };
+      }
+    await step(L, `scroll ${g.name} back`, () =>
+      box.evaluate((el) => {
+        el.scrollLeft = 0;
+        el.scrollTop = 0;
+      }),
+    );
+  }
+}
+
+/**
+ * Every closed <details>, opened by its summary one at a time and closed again: the closed state hides its content
+ * from every check, so the content is checked here, at every viewport (scrolled through any scroll container in it),
+ * and run through axe (Chromium).
+ */
+async function* detailsStates(page, L) {
+  const all = page.locator('main details');
+  for (let i = 0, n = await all.count(); i < n; i++) {
+    const d = all.nth(i);
+    if ((await d.evaluate((el) => el.open)) || !(await d.isVisible())) continue;
+    const summary = d.locator(':scope > summary').first();
+    const name = ((await summary.textContent()) ?? '').replace(/\s+/g, ' ').trim().slice(0, 48);
+    const ok = await step(L, `open details ${i + 1}`, async () => {
+      await summary.click();
+      if (!(await d.evaluate((el) => el.open))) throw new Error('clicking the summary did not open the details');
+      await d.evaluate((el) => el.setAttribute('data-qa-details', ''));
+    });
+    if (ok) {
+      yield { key: `open: ${name}`, axe: '[data-qa-details]' };
+      yield* scrollStates(page, L, '[data-qa-details]', `open: ${name} · `);
+    }
+    await step(L, `close details ${i + 1}`, async () => {
+      await d.evaluate((el) => el.removeAttribute('data-qa-details'));
+      if (await d.evaluate((el) => el.open)) await summary.click();
+      if (await d.evaluate((el) => el.open)) throw new Error('clicking the summary did not close the details');
+    });
+  }
+}
+
 async function* states(page, L, run) {
   yield { key: 'initial' };
   if (!opts.states) return;
   yield* heroStates(page, L);
   yield* groupStates(page, L);
   yield* tipStates(page, L, run);
+  yield* scrollStates(page, L, 'main');
+  yield* detailsStates(page, L);
+  yield* dialogStates(page, L);
 }
 
 // ------------------------------------------------------------------------------------------------ checks
@@ -562,7 +706,7 @@ async function analyzeState(page, L, run, st) {
   await shootAll(page, L, run, L.add(res.issues), st);
 }
 
-async function axeRun(page, L, run, state, { include = null, rules = null } = {}) {
+async function axeRun(page, L, run, state, { include = null, rules = null, pin = !!include } = {}) {
   if (!(await page.evaluate(() => !!window.axe))) await page.addScriptTag({ path: AXE });
   const vs = await page.evaluate(
     async ({ include, rules, tags }) => {
@@ -606,7 +750,7 @@ async function axeRun(page, L, run, state, { include = null, rules = null } = {}
       });
     }
   const fresh = L.add(issues, state);
-  await shootAll(page, L, run, fresh, { key: state, pin: !!include });
+  await shootAll(page, L, run, fresh, { key: state, pin });
 }
 
 async function checkMedia(page, L) {
@@ -692,6 +836,14 @@ async function headerPass(page, L, run) {
 
 /** Keyboard: Tab through every stop from the top of the page and check each focused element and its ring. */
 async function focusPass(page, L, run) {
+  // Every <details> is opened for the walk so the controls it hides are tab stops too, and closed again afterwards.
+  await page.evaluate(() => {
+    for (const d of document.querySelectorAll('main details:not([open])')) {
+      d.setAttribute('data-qa-opened', '');
+      d.open = true;
+    }
+  });
+  await settle(page, run);
   await page.evaluate(() => {
     scrollTo(0, 0);
     const s = document.createElement('button');
@@ -713,7 +865,13 @@ async function focusPass(page, L, run) {
     L.state = `tab ${i}`;
     await shootAll(page, L, run, L.add(res.issues), { key: `tab-${i}`, pin: true });
   }
-  await page.evaluate(() => document.activeElement?.blur?.());
+  await page.evaluate(() => {
+    document.activeElement?.blur?.();
+    for (const d of document.querySelectorAll('[data-qa-opened]')) {
+      d.removeAttribute('data-qa-opened');
+      d.open = false;
+    }
+  });
 }
 
 // ------------------------------------------------------------------------------------------------ one run
@@ -744,7 +902,10 @@ async function runOne(browser, run) {
       await page.evaluate(() => scrollTo(0, 0));
       await settle(page, run);
     }
-    for await (const st of states(page, L, run)) await analyzeState(page, L, run, st);
+    for await (const st of states(page, L, run)) {
+      await analyzeState(page, L, run, st);
+      if (st.axe && opts.axe && run.engine === 'chromium') await axeRun(page, L, run, st.key, { include: st.axe, pin: false });
+    }
     if (opts.header) await headerPass(page, L, run);
     if (opts.keys && run.engine === 'chromium' && run.motion === 'reduce') await focusPass(page, L, run);
     if (opts.shots) {

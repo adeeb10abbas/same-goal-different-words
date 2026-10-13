@@ -163,6 +163,7 @@
 <style>
   .ag {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 14px;
     align-content: start;
   }
@@ -261,8 +262,9 @@
 
   .starts {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 6px 10px;
   }
 
   .starts .lbl {
@@ -271,6 +273,7 @@
 
   .sbtns {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
   }
 

@@ -173,7 +173,7 @@
   </figcaption>
 </figure>
 
-<div class="tscroll" role="region" aria-label="Brier error by model" tabindex="0" data-qa-scroll>
+<div class="tscroll" role="region" aria-label="Brier error by model" tabindex="0" data-qa-scroll="x">
   <table class="dtable" aria-describedby="{uid}-c">
     <thead>
       <tr>

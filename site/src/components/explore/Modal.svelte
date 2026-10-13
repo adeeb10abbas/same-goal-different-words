@@ -70,7 +70,7 @@
   {onkeydown}
 >
   {#if open}
-    <div class="sheet dark" data-qa-scroll>
+    <div class="sheet dark" data-qa-scroll="y">
       {@render children()}
     </div>
   {/if}

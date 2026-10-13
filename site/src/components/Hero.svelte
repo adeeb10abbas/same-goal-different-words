@@ -271,7 +271,7 @@
 
   .authors sup,
   .affs sup {
-    font-size: 0.68em;
+    font-size: max(0.68em, 0.625rem);
     line-height: 0;
     margin: 0 1px;
     color: var(--stage-muted);

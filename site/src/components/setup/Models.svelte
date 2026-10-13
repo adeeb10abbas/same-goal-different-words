@@ -53,7 +53,7 @@
   </div>
 </dl>
 
-<div class="tscroll" data-qa-scroll tabindex="0" role="region" aria-label="Inference settings, scrollable">
+<div class="tscroll" data-qa-scroll="x" tabindex="0" role="region" aria-label="Inference settings, scrollable">
   <table class="dtable">
     <caption>Inference settings (Appendix B)</caption>
     <thead>
@@ -153,6 +153,11 @@
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.45;
+  }
+
+  /* One line per setting keeps the table short enough for a phone screen; it scrolls sideways instead. */
+  .dtable tbody th {
+    white-space: nowrap;
   }
 
   .notes {

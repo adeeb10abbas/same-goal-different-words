@@ -125,7 +125,7 @@
 
   <div class="fig dirrf">
     <h4 class="fh" id="{uid}-t">Direct versus reference-first</h4>
-    <div class="tscroll" role="region" aria-labelledby="{uid}-t" tabindex="0" data-qa-scroll>
+    <div class="tscroll" role="region" aria-labelledby="{uid}-t" tabindex="0" data-qa-scroll="x">
       <table class="dtable" aria-describedby="{uid}-tc">
         <caption class="sr-only">Exploratory DIR − RF gaps in percentage points with 95% intervals</caption>
         <thead>

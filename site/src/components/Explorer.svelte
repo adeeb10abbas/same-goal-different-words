@@ -336,7 +336,7 @@
     </header>
 
     <div class="layout">
-      <aside class="side" aria-label="Filters" data-qa-scroll>
+      <aside class="side" aria-label="Filters" data-qa-scroll="y">
         <div class="sh">
           <h2 class="fh">Filters</h2>
           <button type="button" class="clear" onclick={clearAll} disabled={!nAct}>Clear all</button>
@@ -443,7 +443,7 @@
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
           </button>
         </div>
-        <div class="dbody" data-qa-scroll>
+        <div class="dbody" data-qa-scroll="y">
           <Facets {sel} counts={fc?.counts ?? null} onset={setFacet} {notes} />
         </div>
         <div class="df">

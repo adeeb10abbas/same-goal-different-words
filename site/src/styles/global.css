@@ -425,7 +425,7 @@ p {
   box-shadow: none;
 }
 
-/* Numeric tables. Wrap wide ones in .tscroll (with data-qa-scroll) so narrow screens scroll the table, not the page. */
+/* Numeric tables. Wrap wide ones in .tscroll (with data-qa-scroll="x") so narrow screens scroll the table, not the page. */
 .tscroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -679,18 +679,19 @@ p {
   background: currentColor;
 }
 
+/* Text is darkened toward ink so it keeps 4.5:1 on its own tint, even over --paper-2. */
 .status.kept {
-  color: var(--kept);
+  color: color-mix(in srgb, var(--kept) 72%, var(--ink));
   background: color-mix(in srgb, var(--kept) 12%, transparent);
 }
 
 .status.lost {
-  color: #a86f00;
+  color: color-mix(in srgb, #a86f00 70%, var(--ink));
   background: color-mix(in srgb, var(--lost) 16%, transparent);
 }
 
 .status.never {
-  color: var(--muted);
+  color: color-mix(in srgb, var(--muted) 80%, var(--ink));
   background: color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
