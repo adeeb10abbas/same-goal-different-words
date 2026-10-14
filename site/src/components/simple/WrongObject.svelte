@@ -77,7 +77,7 @@
           <button class="frame" type="button" onclick={toggle} aria-label={play.playing ? 'Pause both rollouts' : 'Play both rollouts'}>
             <SyncVideo
               {clock}
-              src={epFile(p.ep.id, 'top_hq.mp4')}
+              src={epFile(p.ep.id, 'top_hq_web.mp4')}
               poster={epFile(p.ep.id, 'first_hq.webp')}
               label="{FORM_NAME[p.f]} rollout, exterior camera"
               crop={CROP}
