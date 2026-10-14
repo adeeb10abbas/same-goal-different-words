@@ -89,8 +89,8 @@
             >
               <SyncVideo
                 {clock}
-                src={epFile(p.ep.id, 'top.mp4')}
-                poster={epFile(p.ep.id, 'first.webp')}
+                src={epFile(p.ep.id, 'top_hq.mp4')}
+                poster={epFile(p.ep.id, 'first_hq.webp')}
                 label="{FORM_NAME[p.f]} rollout, exterior camera"
                 lazy={false}
                 crop={CROP}
@@ -107,8 +107,8 @@
         {/each}
       </div>
       <p class="cap">
-        {MODEL_NAME[tf.m]} from one saved start, once per wording, at 2× speed. The camera faces the robot, so image left is the robot’s
-        right.
+        {MODEL_NAME[tf.m]} from one saved start, once per wording, at 2× speed. Re-rendered in high quality from each rollout’s logged
+        states, with in-between frames interpolated. The camera faces the robot, so image left is the robot’s right.
       </p>
     </div>
   </div>

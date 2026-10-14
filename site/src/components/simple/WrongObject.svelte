@@ -77,8 +77,8 @@
           <button class="frame" type="button" onclick={toggle} aria-label={play.playing ? 'Pause both rollouts' : 'Play both rollouts'}>
             <SyncVideo
               {clock}
-              src={epFile(p.ep.id, 'top.mp4')}
-              poster={epFile(p.ep.id, 'first.webp')}
+              src={epFile(p.ep.id, 'top_hq.mp4')}
+              poster={epFile(p.ep.id, 'first_hq.webp')}
               label="{FORM_NAME[p.f]} rollout, exterior camera"
               crop={CROP}
             />
@@ -108,8 +108,8 @@
     </div>
 
     <p class="pk-foot">
-      {MODEL_NAME[tf.m]} from one saved start, at 2× speed. A relation check alone counts the bowl move as a success; checking which object
-      moved does not. <a class="pk-more" href={more}>Failure analysis&nbsp;→</a>
+      {MODEL_NAME[tf.m]} from one saved start, at 2× speed, re-rendered from the logged states. A relation check alone counts the
+      bowl move as a success; checking which object moved does not. <a class="pk-more" href={more}>Failure analysis&nbsp;→</a>
     </p>
   </div>
 </section>

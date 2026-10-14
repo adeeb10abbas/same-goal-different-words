@@ -25,8 +25,11 @@ export class SyncClock {
     this.vids.push(v);
     v.muted = true;
     v.playsInline = true;
+    // Setting src (lazy videos do so later) resets playbackRate to defaultPlaybackRate, so set both.
+    v.defaultPlaybackRate = this.rate;
     v.playbackRate = this.rate;
     const meta = () => {
+      v.playbackRate = this.rate;
       this.duration = Math.max(0, ...this.vids.map((x) => (Number.isFinite(x.duration) ? x.duration : 0)));
       if (this.t > 0) this.place(v, this.t);
       if (this.playing) v.play().catch(() => {});
@@ -84,7 +87,10 @@ export class SyncClock {
 
   setRate(r: number) {
     this.rate = r;
-    for (const v of this.vids) v.playbackRate = r;
+    for (const v of this.vids) {
+      v.defaultPlaybackRate = r;
+      v.playbackRate = r;
+    }
   }
 
   destroy() {

@@ -165,7 +165,7 @@
     <div class="foot">
       <Transport {clock} t={play.t} playing={play.playing} dur={play.dur} onuser={(p) => (userPaused = !p)} />
       <p class="caption">
-        {MODEL_NAME[tf.m]}, start state {tf.c} of 8, played at 2×. Unedited simulator recordings from an exterior camera, cropped and
+        {MODEL_NAME[tf.m]}, start state {tf.c} of 8, played at 2×. Simulator recordings from an exterior camera, lightly denoised, cropped and
         rotated upright as in the paper. The camera faces the robot, so image left is the robot’s right. The lanes are scored from
         simulator state after the fact.
       </p>

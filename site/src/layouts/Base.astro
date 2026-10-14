@@ -115,8 +115,9 @@ const commit = study.source.commit.slice(0, 7);
             <p>
               Every number on this site is computed from the released analysis outputs at
               commit <a class="mono" href={`${SITE.code}/tree/${study.source.commit}`}>{commit}</a> and checked against the submitted
-              paper ({study.checks.toLocaleString('en-US')} assertions). Videos are unedited simulator recordings; generated
-              frames are always labelled as predictions.
+              paper ({study.checks.toLocaleString('en-US')} assertions). Videos are simulator recordings, lightly denoised; the
+              home page’s rollouts are re-rendered in high quality from their logged states. Generated frames are always labelled as
+              predictions.
             </p>
           </div>
         </div>
