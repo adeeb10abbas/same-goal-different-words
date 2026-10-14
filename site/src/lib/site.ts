@@ -14,7 +14,7 @@ export const SITE = {
     { name: 'Behrad Toghi', aff: [1] },
     { name: 'Taskin Padir', aff: [2] },
   ] as { name: string; url?: string; aff: number[] }[],
-  affiliations: ['General Motors Robotics', 'RIVeR Lab, Northeastern University'],
+  affiliations: ['General Motors', 'RIVeR Lab, Northeastern University'],
   /**
    * Affiliation logos in `affiliations` order, drawn as white silhouettes in the heroes. Files in public/logos/ are
    * from Wikimedia Commons; `ratio` is each file's width / height.
