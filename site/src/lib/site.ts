@@ -12,9 +12,9 @@ export const SITE = {
     { name: 'Ali-Adeeb Abbas', aff: [1, 2] },
     { name: 'Esmaeil Seraj', aff: [1] },
     { name: 'Behrad Toghi', aff: [1] },
-    { name: 'Taskin Padir', aff: [2, 3] },
+    { name: 'Taskin Padir', aff: [2] },
   ] as { name: string; url?: string; aff: number[] }[],
-  affiliations: ['General Motors Robotics', 'RIVeR Lab, Northeastern University', 'Amazon Robotics'],
+  affiliations: ['General Motors Robotics', 'RIVeR Lab, Northeastern University'],
   /**
    * Affiliation logos in `affiliations` order, drawn as white silhouettes in the heroes. Files in public/logos/ are
    * from Wikimedia Commons; `ratio` is each file's width / height.
@@ -22,7 +22,6 @@ export const SITE = {
   logos: [
     { src: 'logos/gm.svg', ratio: 229.557 / 61.167 },
     { src: 'logos/northeastern.svg', ratio: 247 / 78.865 },
-    { src: 'logos/amazon-robotics.svg', ratio: 585 / 182 },
   ],
   contact: 'abbas.a@northeastern.edu',
   anonymous: false,
