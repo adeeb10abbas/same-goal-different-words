@@ -241,6 +241,7 @@
 
   h1 em {
     font-style: italic;
+    font-weight: 400;
     background: linear-gradient(92deg, var(--tf-2), var(--rf-2));
     -webkit-background-clip: text;
     background-clip: text;

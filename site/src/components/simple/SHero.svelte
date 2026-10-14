@@ -179,6 +179,7 @@
   h1 em {
     display: block;
     font-style: italic;
+    font-weight: 400;
     color: #fff;
   }
 
@@ -192,10 +193,9 @@
   .hook {
     margin: 22px 0 0;
     font-family: var(--serif);
-    font-style: italic;
     font-size: clamp(1.15rem, 1.05rem + 0.35vw, 1.34rem);
     line-height: 1.4;
-    color: #fff;
+    color: #dfe3ea;
     max-width: 21em;
   }
 

@@ -16,6 +16,8 @@ Per episode this writes OUT/ep/<ep>/:
   done.json       sizes and sha256 of every output
 Curated episodes (--tier b) also get dream.mp4: [imagined | executed] model-view composite over the
 whole episode, where tick pre+k shows frame k of the future generated at the request issued at tick pre.
+All executed camera footage (videos, posters, and the executed half of each composite) is denoised
+before encoding (see DENOISE); generated futures are encoded untouched.
 """
 from __future__ import annotations
 
@@ -36,12 +38,18 @@ from PIL import Image
 
 FPS = 15
 HEAD_W, HEAD_H = 1280, 720
+# Isaac Sim's real-time renderer leaves frame-to-frame sampling shimmer (strongest on textured surfaces
+# such as the wooden table) and isolated single-pixel speckles, which x264 turns into blocky grain.
+# Executed camera footage passes through this chain before encoding: atadenoise averages a pixel over
+# up to 9 frames only while it stays within small thresholds (moving pixels are kept), and
+# removegrain=1 clips each pixel to the range of its 8 neighbours. Generated futures are never filtered.
+DENOISE = "atadenoise=0a=0.05:0b=0.10:1a=0.05:1b=0.10:2a=0.05:2b=0.10:s=9,removegrain=1"
 # The paper's close view (generate_execution_examples.py: crop (380, 100, 920, 635), then 90 degrees
 # counter-clockwise), extended by one row so both sides are even. Upright: the camera faces the robot,
 # so the robot is at the top and the robot's left is image right.
-TOP_VF = "crop=540:536:380:100,transpose=2"
+TOP_VF = f"crop=540:536:380:100,transpose=2,{DENOISE}"
 TOP_W, TOP_H = 536, 540
-FRONT_VF = "null"  # 864x480 viewport, native pixels
+FRONT_VF = DENOISE  # 864x480 viewport, native pixels
 VIDEO_CRF, MODEL_CRF, KEYINT = 18, 20, 30
 COMP_H, COMP_W = 540, 640
 SPRITE_N, SPRITE_W, SPRITE_H = 12, 180, 181
@@ -250,7 +258,7 @@ def forecast(adir: Path, row: dict, out: Path, crf: int) -> None:
     pre, n = int(q["pre_tick"]), int(q["n_executed"])
     with np.load(adir / "futures" / f"r{row['primary']:02d}.npz") as z:
         pred = fit_rows(z["video"][: n + 1])
-    exe = list(decode_frames(adir / "exec_composite.mkv", COMP_W, COMP_H, pre, n + 1))
+    exe = list(decode_frames(adir / "exec_composite.mkv", COMP_W, COMP_H, pre, n + 1, vf=DENOISE))
     if len(exe) != n + 1 or len(pred) != n + 1:
         raise RuntimeError(f"forecast window mismatch: pred {len(pred)} exec {len(exe)} expected {n + 1}")
     enc = RawEncoder(target, 2 * COMP_W, COMP_H, crf, gop=n + 1)
@@ -265,7 +273,7 @@ def dream(adir: Path, row: dict, out: Path, crf: int) -> None:
     if done_file(target):
         return
     reqs = request_rows(adir)
-    exe = decode_frames(adir / "exec_composite.mkv", COMP_W, COMP_H)
+    exe = decode_frames(adir / "exec_composite.mkv", COMP_W, COMP_H, vf=DENOISE)
     enc = RawEncoder(target, 2 * COMP_W, COMP_H, crf)
     written = 0
     for r in reqs:

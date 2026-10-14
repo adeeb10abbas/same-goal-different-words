@@ -4,7 +4,7 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 export const MEDIA_BASE = ((import.meta.env.PUBLIC_MEDIA_BASE as string | undefined) || `${base}media`).replace(/\/$/, '');
 
 /** Media encode revision, appended to every media URL so browser and CDN caches never mix encodes. */
-export const MEDIA_REV = '2';
+export const MEDIA_REV = '3';
 
 export const href = (path = '') => `${base}${path.replace(/^\//, '')}`;
 export const epFile = (id: string, file: string) => `${MEDIA_BASE}/ep/${id}/${file}?v=${MEDIA_REV}`;
