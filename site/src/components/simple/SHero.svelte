@@ -3,7 +3,8 @@
   import { scale } from 'svelte/transition';
   import { backOut } from 'svelte/easing';
   import { createClock, autoplay } from '../../lib/clock.svelte';
-  import { epFile, type Crop, type Episode } from '../../lib/media';
+  import { epFile, href, type Crop, type Episode } from '../../lib/media';
+  import { homeClip, compareHash } from '../../lib/clips';
   import { goalByKey, outcomeOf, MODEL_NAME, FORM_NAME, FORM_SHORT, type Outcome } from '../../lib/study';
   import { SITE } from '../../lib/site';
   import { splitPair } from '../../lib/split';
@@ -32,10 +33,13 @@
     [
       { f: 'S' as const, ep: tf, clause: words.S },
       { f: 'I' as const, ep: rf, clause: words.I },
-    ].map((p) => ({ ...p, o: outcomeOf(p.ep), at: p.ep.tStable ?? Infinity })),
+    ].map((p) => {
+      // Each clip is cut shortly after its objects come to rest, so the shorter one rests on its last frame.
+      const clip = homeClip(p.ep.id);
+      return { ...p, ...clip, o: outcomeOf(p.ep), at: Math.min(p.ep.tStable ?? Infinity, clip.end - 0.05) };
+    }),
   );
   const ended = $derived(play.dur > 0 && play.t >= play.dur - 0.05);
-  const frac = $derived(play.dur ? Math.min(1, play.t / play.dur) : 0);
 
   function toggle() {
     clock.toggle();
@@ -89,13 +93,13 @@
             >
               <SyncVideo
                 {clock}
-                src={epFile(p.ep.id, 'top_hq_web.mp4')}
+                src={p.src}
                 poster={epFile(p.ep.id, 'first_hq.webp')}
                 label="{FORM_NAME[p.f]} rollout, exterior camera"
                 lazy={false}
                 crop={CROP}
               />
-              <span class="bar" aria-hidden="true"><i style:transform="scaleX({frac})"></i></span>
+              <span class="bar" aria-hidden="true"><i style:transform="scaleX({Math.min(1, play.t / p.end)})"></i></span>
               {#if ended || play.t >= p.at}
                 <span class="verdict {p.o}" data-qa-overlay transition:scale={{ start: 0.85, duration: 380, easing: backOut }}>
                   <span class="ic" aria-hidden="true">{p.o === 'never' ? '✕' : '✓'}</span>{VERDICT[p.o]}
@@ -108,7 +112,8 @@
       </div>
       <p class="cap">
         {MODEL_NAME[tf.m]} from one saved start, once per wording, at 2× speed. Re-rendered in high quality from each rollout’s logged
-        states, with in-between frames interpolated. The camera faces the robot, so image left is the robot’s right.
+        states, with in-between frames interpolated. Each clip ends 2.5&nbsp;s of rollout after its objects come to rest. The camera
+        faces the robot, so image left is the robot’s right. <a class="pk-more" href={href(compareHash(tf.id))}>Full rollouts&nbsp;→</a>
       </p>
     </div>
   </div>

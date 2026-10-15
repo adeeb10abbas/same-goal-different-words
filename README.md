@@ -33,7 +33,7 @@ too large for GitHub Pages. They are hosted in the Hugging Face dataset
 and the build points at it through `PUBLIC_MEDIA_BASE` (see `.github/workflows/deploy.yml`).
 
 Rollout videos are the simulator's camera recordings, lightly denoised (`DENOISE` in `pipeline/cluster/build_media.py`);
-generated futures are never filtered. The home page's four featured rollouts use `top_hq_web.mp4` and `first_hq.webp`,
+generated futures are never filtered. The home page's four featured rollouts use `top_hq_trim.mp4` and `first_hq.webp`,
 re-rendered for display by `pipeline/cluster/rerender/`. That re-render is a kinematic replay of each executed rollout:
 it writes the logged robot joint positions and object poses at every 15 Hz control tick, without stepping physics or
 querying the policy, and path-traces the exterior camera at 3× pixel density. It adds one interpolated frame between
@@ -41,6 +41,10 @@ ticks, giving 30 fps. In a fidelity check at the original render settings (the f
 replay differed from the recorded video by 0.40/255 per pixel on average. `build_hq.py` encodes the re-render at CRF 18
 (`top_hq.mp4`, also published). `web_encode.py` re-encodes that file at CRF 26 into `top_hq_web.mp4`, keeping every
 frame (SSIM 0.99 against `top_hq.mp4`). The hero's two clips at 2× then need about 0.36 MB/s instead of 0.86 MB/s.
+`trim_rest.py` makes the same CRF 26 encode but ends it 2.5 s of rollout (1.25 s on screen at 2×) after the objects
+come to rest, as read from the logged poses: after the last tick at which any object is more than 3 mm or 3° from the
+pose it ends the rollout in. The arm is ignored. That cut is `top_hq_trim.mp4`; its length is recorded in
+`site/src/data/clips.json` and under `trim` in `hq.json`. The explorer and the details page play the full rollouts.
 
 ```bash
 # on a GPU node with the RoboLab/Isaac environment; then encode the display files
@@ -48,6 +52,7 @@ rerender/rr.sh --attempt <attempt dir> --scene S4 --out hq/<EP>.mkv --scale 3 --
   --renderer pathtracing --mode quality --aa '' --spp 16 --accum 8 --sub 2 --warmup 60
 python rerender/build_hq.py hq/<EP>.mkv <media>/ep/<EP>
 python rerender/web_encode.py <media>/ep/<EP>   # anywhere with an ffmpeg that has libx264
+python rerender/trim_rest.py <media>/ep/<EP>    # needs timeline.json; updates site/src/data/clips.json
 ```
 
 ## Develop

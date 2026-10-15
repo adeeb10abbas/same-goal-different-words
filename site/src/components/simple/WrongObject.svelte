@@ -3,7 +3,8 @@
   import { scale } from 'svelte/transition';
   import { backOut } from 'svelte/easing';
   import { createClock, autoplay } from '../../lib/clock.svelte';
-  import { epFile, type Crop, type Episode } from '../../lib/media';
+  import { epFile, href, type Crop, type Episode } from '../../lib/media';
+  import { homeClip, compareHash } from '../../lib/clips';
   import { goalByKey, FORM_NAME, FORM_SHORT, MODEL_NAME } from '../../lib/study';
   import { splitPair } from '../../lib/split';
   import Instruction from '../Instruction.svelte';
@@ -26,28 +27,33 @@
   onDestroy(destroy);
   let userPaused = $state(false);
 
-  const panels = $derived([
-    {
-      f: 'S' as const,
-      ep: tf,
-      clause: words.S,
-      ok: false,
-      verdict: 'Scored a failure',
-      what: 'Lifted the cube, as asked, then dropped it into the bowl',
-      at: Infinity,
-    },
-    {
-      f: 'I' as const,
-      ep: rf,
-      clause: words.I,
-      ok: true,
-      verdict: 'Scored a success',
-      what: 'Carried the bowl instead; the cube never moved',
-      at: rf.tStable ?? Infinity,
-    },
-  ]);
+  const panels = $derived(
+    [
+      {
+        f: 'S' as const,
+        ep: tf,
+        clause: words.S,
+        ok: false,
+        verdict: 'Scored a failure',
+        what: 'Lifted the cube, as asked, then dropped it into the bowl',
+        at: Infinity,
+      },
+      {
+        f: 'I' as const,
+        ep: rf,
+        clause: words.I,
+        ok: true,
+        verdict: 'Scored a success',
+        what: 'Carried the bowl instead; the cube never moved',
+        at: rf.tStable ?? Infinity,
+      },
+    ].map((p) => {
+      // Each clip is cut shortly after its objects come to rest; its verdict shows by the time it ends.
+      const clip = homeClip(p.ep.id);
+      return { ...p, ...clip, at: Math.min(p.at, clip.end - 0.05) };
+    }),
+  );
   const ended = $derived(play.dur > 0 && play.t >= play.dur - 0.05);
-  const frac = $derived(play.dur ? Math.min(1, play.t / play.dur) : 0);
 
   function toggle() {
     clock.toggle();
@@ -77,12 +83,12 @@
           <button class="frame" type="button" onclick={toggle} aria-label={play.playing ? 'Pause both rollouts' : 'Play both rollouts'}>
             <SyncVideo
               {clock}
-              src={epFile(p.ep.id, 'top_hq_web.mp4')}
+              src={p.src}
               poster={epFile(p.ep.id, 'first_hq.webp')}
               label="{FORM_NAME[p.f]} rollout, exterior camera"
               crop={CROP}
             />
-            <span class="bar" aria-hidden="true"><i style:transform="scaleX({frac})"></i></span>
+            <span class="bar" aria-hidden="true"><i style:transform="scaleX({Math.min(1, play.t / p.end)})"></i></span>
             {#if ended || play.t >= p.at}
               <span class="chip" class:ok={p.ok} data-qa-overlay transition:scale={{ start: 0.85, duration: 380, easing: backOut }}>
                 <span class="ic" aria-hidden="true">{p.ok ? '✓' : '✕'}</span>{p.verdict}
@@ -108,8 +114,9 @@
     </div>
 
     <p class="pk-foot">
-      {MODEL_NAME[tf.m]} from one saved start, at 2× speed, re-rendered from the logged states. A relation check alone counts the
-      bowl move as a success; checking which object moved does not. <a class="pk-more" href={more}>Failure analysis&nbsp;→</a>
+      {MODEL_NAME[tf.m]} from one saved start, at 2× speed, re-rendered from the logged states; each clip ends 2.5&nbsp;s of rollout
+      after its objects come to rest (<a href={href(compareHash(tf.id))}>full rollouts</a>). A relation check alone counts the bowl
+      move as a success; checking which object moved does not. <a class="pk-more" href={more}>Failure analysis&nbsp;→</a>
     </p>
   </div>
 </section>

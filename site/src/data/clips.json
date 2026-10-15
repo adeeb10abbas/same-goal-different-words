@@ -1,0 +1,26 @@
+{
+  "file": "top_hq_trim.mp4",
+  "rule": "Ends 2.5 s of rollout (1.25 s on screen at 2x) after the last tick at which any object is more than 3 mm or 3 degrees from the pose it ends the rollout in.",
+  "clips": {
+    "RWS-E3-S4-C02-R-I": {
+      "rest": 35.2,
+      "end": 37.733,
+      "full": 40.067
+    },
+    "RWS-E3-S4-C02-R-S": {
+      "rest": 32.267,
+      "end": 34.8,
+      "full": 40.067
+    },
+    "RWS-N3-S1-C08-B-I": {
+      "rest": 25.2,
+      "end": 27.733,
+      "full": 30.067
+    },
+    "RWS-N3-S1-C08-B-S": {
+      "rest": 12.867,
+      "end": 15.4,
+      "full": 30.067
+    }
+  }
+}
